@@ -1,6 +1,6 @@
 """
 server.py
-ConvertMyDocuments v1.1.0 - High Performance Standalone Windows Desktop Server.
+ConvertMyDocuments v1.1.1 - High Performance Standalone Windows Desktop Server.
 Runs 100% offline on localhost (127.0.0.1) with zero external network connectivity.
 Launches native Windows Edge App Mode with automatic lifecycle watchdog.
 """
@@ -58,6 +58,44 @@ last_heartbeat = time.time()
 has_received_heartbeat = False
 
 
+def get_settings_file_path() -> str:
+    """Returns the persistent settings file path in LOCALAPPDATA."""
+    app_data = os.environ.get("LOCALAPPDATA", os.path.expanduser("~"))
+    settings_dir = os.path.join(app_data, "ConvertMyDocuments")
+    os.makedirs(settings_dir, exist_ok=True)
+    return os.path.join(settings_dir, "settings.json")
+
+
+def load_settings() -> Dict[str, Any]:
+    """Loads user settings from persistent JSON file. Defaults to English ('en')."""
+    path = get_settings_file_path()
+    default_settings = {"language": "en"}
+    if os.path.exists(path):
+        try:
+            with open(path, "r", encoding="utf-8") as f:
+                data = json.load(f)
+                if isinstance(data, dict):
+                    lang = data.get("language", "en")
+                    if lang not in ["en", "id"]:
+                        lang = "en"
+                    return {"language": lang}
+        except Exception:
+            pass
+    return default_settings
+
+
+def save_settings(settings: Dict[str, Any]):
+    """Saves user settings to persistent JSON file in LOCALAPPDATA."""
+    path = get_settings_file_path()
+    try:
+        current = load_settings()
+        current.update(settings)
+        with open(path, "w", encoding="utf-8") as f:
+            json.dump(current, f, indent=2)
+    except Exception:
+        pass
+
+
 def get_default_output_dir() -> str:
     """Returns the default Windows Downloads directory for saved conversions."""
     user_home = os.path.expanduser("~")
@@ -100,13 +138,22 @@ class DocShieldHandler(SimpleHTTPRequestHandler):
             self.end_headers()
             status_data = {
                 "name": "ConvertMyDocuments",
-                "version": "1.1.0",
+                "version": "1.1.1",
                 "status": "online",
                 "mode": "100% Offline (Localhost)",
+                "language": load_settings().get("language", "en"),
                 "default_output_dir": get_default_output_dir(),
                 "port": PORT
             }
             self.wfile.write(json.dumps(status_data).encode("utf-8"))
+            return
+
+        # Settings API (GET)
+        if path == "/api/settings":
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json")
+            self.end_headers()
+            self.wfile.write(json.dumps(load_settings()).encode("utf-8"))
             return
 
         # Job Progress Polling API
@@ -156,6 +203,27 @@ class DocShieldHandler(SimpleHTTPRequestHandler):
             self.send_header("Content-Type", "application/json")
             self.end_headers()
             self.wfile.write(b'{"status":"alive"}')
+            return
+
+        # Settings API (POST - persist language/preferences)
+        if path == "/api/settings":
+            content_len = int(self.headers.get("Content-Length", 0))
+            body = self.rfile.read(content_len).decode("utf-8")
+            try:
+                data = json.loads(body)
+                lang = data.get("language")
+                if lang in ["en", "id"]:
+                    save_settings({"language": lang})
+                updated = load_settings()
+                self.send_response(200)
+                self.send_header("Content-Type", "application/json")
+                self.end_headers()
+                self.wfile.write(json.dumps({"success": True, "settings": updated}).encode("utf-8"))
+            except Exception as e:
+                self.send_response(400)
+                self.send_header("Content-Type", "application/json")
+                self.end_headers()
+                self.wfile.write(json.dumps({"success": False, "error": str(e)}).encode("utf-8"))
             return
 
         # Open File in Default Windows App API

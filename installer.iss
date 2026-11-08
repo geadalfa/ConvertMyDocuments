@@ -1,8 +1,8 @@
-; Inno Setup Script untuk ConvertMyDocuments v1.1.0
-; Menghasilkan installer mandiri profesional: ConvertMyDocuments_Setup_v1.1.0.exe
+; Inno Setup Script untuk ConvertMyDocuments v1.1.1
+; Menghasilkan installer mandiri profesional: ConvertMyDocuments_Setup_v1.1.1.exe
 
 #define MyAppName "ConvertMyDocuments"
-#define MyAppVersion "1.1.0"
+#define MyAppVersion "1.1.1"
 #define MyAppPublisher "geadalfa"
 #define MyAppURL "https://github.com/geadalfa/ConvertMyDocuments"
 #define MyAppExeName "ConvertMyDocuments.exe"
@@ -19,7 +19,7 @@ DefaultDirName={localappdata}\Programs\{#MyAppName}
 DefaultGroupName={#MyAppName}
 DisableProgramGroupPage=yes
 OutputDir=C:\Users\Alfa\.gemini\antigravity\scratch\docshield-converter\installer_output
-OutputBaseFilename=ConvertMyDocuments_Setup_v1.1.0
+OutputBaseFilename=ConvertMyDocuments_Setup_v1.1.1
 SetupIconFile=C:\Users\Alfa\.gemini\antigravity\scratch\docshield-converter\app_icon.ico
 Compression=lzma2/ultra64
 SolidCompression=yes

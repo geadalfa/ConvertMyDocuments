@@ -1,11 +1,12 @@
-# ConvertMyDocuments (v1.1.0)
+# ConvertMyDocuments (v1.1.1)
 ### Zero-Leakage Offline Document & OCR Desktop Suite for Windows
 
 [![License: Non-Commercial](https://img.shields.io/badge/License-PolyForm%20NonCommercial-blue.svg)](LICENSE)
 [![Privacy: 100% Offline](https://img.shields.io/badge/Privacy-100%25%20Offline%20(Localhost)-emerald.svg)](#-jaminan-privasi-mutlak-kami-tidak-mengambil-data-anda)
 [![Compliance: UU PDP RI](https://img.shields.io/badge/Kepatuhan-UU%20PDP%20No.%2027%2F2022-brightgreen.svg)](#-kepatuhan-undang-undang-perlindungan-data-pribadi-uu-pdp)
+[![Language: Bilingual](https://img.shields.io/badge/Language-English%20%7C%20Indonesia-blueviolet.svg)](#-fitur-unggulan)
 [![Platform: Windows 10/11](https://img.shields.io/badge/Platform-Windows%2010%20%7C%2011%20(64--bit)-lightgrey.svg)](#-unduh--instalasi)
-[![Release: v1.1.0](https://img.shields.io/badge/Release-v1.1.0-blue.svg)](https://github.com/geadalfa/ConvertMyDocuments/releases/tag/v1.1.0)
+[![Release: v1.1.1](https://img.shields.io/badge/Release-v1.1.1-blue.svg)](https://github.com/geadalfa/ConvertMyDocuments/releases/tag/v1.1.1)
 
 Aplikasi desktop Windows mandiri, modern, dan berkecepatan tinggi untuk mengonversi dokumen PDF, gambar, scan berkas, dan faktur ber-watermark menjadi Word (`.docx`), teks (`.txt`), dan PDF (`.pdf`) **tanpa mengunggah satu byte pun data ke internet**.
 
@@ -27,6 +28,11 @@ Aplikasi desktop Windows mandiri, modern, dan berkecepatan tinggi untuk mengonve
 ---
 
 ## ✨ Fitur Unggulan
+
+### 🌐 Antarmuka Dwibahasa (Bilingual: English & Bahasa Indonesia)
+- **Default Bahasa Inggris (English):** Menyesuaikan standar perangkat lunak internasional.
+- **Dukungan Penuh Bahasa Indonesia:** Seluruh menu, teks bantuan, status konversi, dan pratinjau diterjemahkan secara akurat.
+- **Penyimpanan Pengaturan Otomatis (Persistent Session):** Saat Anda beralih bahasa (EN atau ID), preferensi Anda otomatis disimpan di profil pengguna komputer. Ketika aplikasi dibuka kembali di sesi berikutnya, bahasa yang Anda pilih akan tetap aktif tanpa perlu diatur ulang.
 
 ### 1. PDF ke Word (.docx) — Presisi Tinggi & Identik PDF
 - **Tata Letak Identik:** Mempertahankan ukuran halaman asli (termasuk format presentasi 16:9 Widescreen, A4, atau Letter), margin, padding, perataan, dan spasi antar baris.
@@ -52,12 +58,12 @@ Aplikasi desktop Windows mandiri, modern, dan berkecepatan tinggi untuk mengonve
 
 ## 🚀 Unduh & Instalasi
 
-Pilih salah satu cara instalasi di bawah ini dari [Halaman GitHub Releases](https://github.com/geadalfa/ConvertMyDocuments/releases/tag/v1.1.0):
+Pilih salah satu cara instalasi di bawah ini dari [Halaman GitHub Releases](https://github.com/geadalfa/ConvertMyDocuments/releases/tag/v1.1.1):
 
 | Berkas Unduhan | Tipe | Keterangan |
 | :--- | :--- | :--- |
-| **[`ConvertMyDocuments_Setup_v1.1.0.exe`](https://github.com/geadalfa/ConvertMyDocuments/releases/download/v1.1.0/ConvertMyDocuments_Setup_v1.1.0.exe)** | **Installer Resmi (Direkomendasikan)** | Cukup unduh dan jalankan. Otomatis membuat ikon di Desktop & Start Menu. Tidak butuh akses administrator (UAC). |
-| **[`ConvertMyDocuments-v1.1.0-portable.zip`](https://github.com/geadalfa/ConvertMyDocuments/releases/download/v1.1.0/ConvertMyDocuments-v1.1.0-portable.zip)** | **Versi Portable** | Ekstrak berkas ZIP di folder mana saja dan langsung jalankan `ConvertMyDocuments.exe`. |
+| **[`ConvertMyDocuments_Setup_v1.1.1.exe`](https://github.com/geadalfa/ConvertMyDocuments/releases/download/v1.1.1/ConvertMyDocuments_Setup_v1.1.1.exe)** | **Installer Resmi (Direkomendasikan)** | Cukup unduh dan jalankan. Otomatis membuat ikon di Desktop & Start Menu. Tidak butuh akses administrator (UAC). |
+| **[`ConvertMyDocuments-v1.1.1-portable.zip`](https://github.com/geadalfa/ConvertMyDocuments/releases/download/v1.1.1/ConvertMyDocuments-v1.1.1-portable.zip)** | **Versi Portable** | Ekstrak berkas ZIP di folder mana saja dan langsung jalankan `ConvertMyDocuments.exe`. |
 
 ### Kebutuhan Sistem
 - **Sistem Operasi:** Windows 10 atau Windows 11 (64-bit)

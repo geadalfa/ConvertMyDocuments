@@ -75,9 +75,35 @@ class TestDocShieldAPI(unittest.TestCase):
         """QA Gate: Verify local-only offline status and system parameters."""
         data = self._get_json("/api/status")
         self.assertEqual(data.get("name"), "ConvertMyDocuments")
-        self.assertEqual(data.get("version"), "1.1.0")
+        self.assertEqual(data.get("version"), "1.1.1")
         self.assertIn("100% Offline", data.get("mode"))
+        self.assertIn(data.get("language"), ["en", "id"])
         self.assertTrue(os.path.exists(data.get("default_output_dir")))
+
+    def test_01b_bilingual_settings_persistence(self):
+        """QA Gate: Verify bilingual settings GET and POST persistence across sessions."""
+        # Check initial GET settings
+        settings = self._get_json("/api/settings")
+        self.assertIn("language", settings)
+        self.assertIn(settings["language"], ["en", "id"])
+
+        # Change language to Indonesian ('id')
+        res_id = self._post_json("/api/settings", {"language": "id"})
+        self.assertTrue(res_id.get("success"))
+        self.assertEqual(res_id.get("settings", {}).get("language"), "id")
+
+        # Verify persisted via GET
+        check_id = self._get_json("/api/settings")
+        self.assertEqual(check_id.get("language"), "id")
+
+        # Switch back to English ('en')
+        res_en = self._post_json("/api/settings", {"language": "en"})
+        self.assertTrue(res_en.get("success"))
+        self.assertEqual(res_en.get("settings", {}).get("language"), "en")
+
+        # Verify persisted via GET
+        check_en = self._get_json("/api/settings")
+        self.assertEqual(check_en.get("language"), "en")
 
     def test_02_heartbeat(self):
         """QA Gate: Verify watchdog heartbeat keeps application active."""

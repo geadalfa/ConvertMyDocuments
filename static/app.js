@@ -1,14 +1,267 @@
 /**
  * app.js
- * Frontend controller for DocShield Converter.
- * Zero-Leakage Offline Document & OCR Suite.
+ * Frontend controller for ConvertMyDocuments v1.1.1.
+ * Zero-Leakage Offline Document & OCR Desktop Suite for Windows.
+ * Supports Bilingual UI (English & Indonesian) with persistent session preferences.
  */
 
 (function () {
   "use strict";
 
+  // Bilingual Dictionary (English Default & Indonesian)
+  const I18N = {
+    en: {
+      page_title: "ConvertMyDocuments v1.1.1 - Zero-Leakage Offline Document & OCR Suite",
+      app_subtitle: "Zero-Leakage Local Document & OCR Suite",
+      privacy_pill_tooltip: "All files processed 100% locally in your PC memory without internet.",
+      privacy_pill_text: "100% Offline (Localhost)",
+
+      // Nav Tabs
+      tab_pdf_to_word: "1. PDF to Word",
+      tab_pdf_to_text: "2. PDF to Text",
+      tab_jpg_to_pdf: "3. JPG to PDF",
+      tab_jpg_to_word: "4. JPG to Word (OCR)",
+
+      // Mode Configs
+      modes: {
+        pdf_to_word: {
+          title: "1. Convert PDF to Word Document (.docx)",
+          desc: "Extract digital PDFs or scanned non-selectable pages with offline RapidOCR, watermark bleaching, and copy/print restriction unlocking.",
+          btnText: "Start PDF to Word Conversion",
+          acceptText: "Supports PDF files (No size limits, processed locally)",
+        },
+        pdf_to_text: {
+          title: "2. Extract PDF to Plain Text (.txt)",
+          desc: "Extract digital text instantly or run automated OCR for scanned PDFs. Text can be copied to clipboard with 1-click.",
+          btnText: "Start Text Extraction from PDF",
+          acceptText: "Supports PDF files (No size limits, processed locally)",
+        },
+        jpg_to_pdf: {
+          title: "3. Merge Images / Photos to PDF (.pdf)",
+          desc: "Combine single or multiple photos / document scans (JPG, PNG, WEBP, BMP, TIFF) into a single high-quality PDF document.",
+          btnText: "Start Merging Images to PDF",
+          acceptText: "Supports JPG, PNG, WEBP, BMP, TIFF (Multi-file batch merge)",
+        },
+        jpg_to_word: {
+          title: "4. Extract Image / Photo Text to Word (.docx)",
+          desc: "Extract text from images, receipts, document photos, or watermarked scans with RapidOCR and compile into editable Word format.",
+          btnText: "Start Image OCR to Word",
+          acceptText: "Supports JPG, PNG, WEBP, BMP, TIFF (Multi-file batch OCR)",
+        },
+      },
+
+      // Dropzone & Selected Files
+      dropzone_prompt: "Drag & Drop Files Here",
+      btn_browse: "Choose Files from Computer",
+      selected_files_title: "Selected Files",
+      btn_clear_all: "Clear All",
+      remove_file_title: "Remove this file",
+
+      // Options Panel
+      options_title: "Precision & Privacy Settings",
+      options_tag: "Zero Cloud Leakage",
+      opt_ocr_label: "Auto Scanned PDF Detection (RapidOCR)",
+      opt_ocr_hint: "Recognize non-selectable text or scanned pages with offline AI OCR.",
+      opt_wm_label: "Remove Watermarks & Transparent Stamps",
+      opt_wm_hint: "Bleach background watermarks, stamps, or paper discoloration with OpenCV thresholding.",
+      opt_threshold_label: "Bleach Threshold:",
+      opt_threshold_hint: "Pixels brighter than this value are converted to clean pure white (#FFFFFF). Default: 185.",
+      opt_unlock_label: "Unlock PDF Copy & Print Restrictions",
+      opt_unlock_hint: "Automatically decrypts protected PDFs or permission locks without external password.",
+      opt_pagesize_label: "PDF Page Layout Format",
+      opt_pagesize_hint: "Choose page size ratio for the merged PDF document.",
+      opt_pagesize_fit: "Original Image Size (Fit Resolution)",
+      opt_pagesize_a4_p: "A4 Paper (Portrait)",
+      opt_pagesize_a4_l: "A4 Paper (Landscape)",
+      output_dir_label: "Output Destination Folder",
+      output_dir_hint: "Converted documents will be saved directly on your computer.",
+
+      // CTA Button
+      btn_choose_first: "Choose File(s) First",
+      files_suffix: "Files",
+      file_suffix: "File",
+
+      // Progress Card
+      progress_title: "Converting Document Locally...",
+      progress_status_sending: "Sending files to local processing memory...",
+      progress_finished: "Conversion completed successfully!",
+
+      // Result Card
+      result_title: "Conversion Completed Successfully!",
+      label_method: "Process Method",
+      label_pages: "Pages / Files Count",
+      label_security: "Data Security",
+      security_value: "100% Offline (Localhost)",
+      btn_open_file: "Open File Directly",
+      btn_open_folder: "Show in Folder Explorer",
+      btn_copy_text: "Copy Text to Clipboard",
+      btn_convert_another: "Convert Another Document",
+      text_preview_title: "Extracted Text Preview:",
+
+      // Units & Plurals
+      unit_page: "Page",
+      unit_pages: "Pages",
+      unit_files: "Files",
+      unit_file: "File",
+      unit_images: "Images",
+      unit_image: "Image",
+      unit_tables: "Tables",
+      unit_table: "Table",
+      unit_chars: "Characters",
+
+      // Notifications
+      toast_copied: "Text copied to clipboard!",
+      toast_success: "Conversion completed 100% locally!",
+      alert_open_fail: "Cannot open file directly: ",
+      alert_server_fail: "Failed to connect to local server: ",
+      alert_convert_fail: "Conversion failed: ",
+      alert_start_fail: "Error occurred while starting conversion: ",
+    },
+
+    id: {
+      page_title: "ConvertMyDocuments v1.1.1 - Suite Dokumen & OCR Offline Tanpa Bocor Data",
+      app_subtitle: "Suite Dokumen & OCR Lokal Tanpa Bocor Data",
+      privacy_pill_tooltip: "Semua berkas diproses 100% lokal di memori PC tanpa internet.",
+      privacy_pill_text: "100% Offline (Localhost)",
+
+      // Nav Tabs
+      tab_pdf_to_word: "1. PDF ke Word",
+      tab_pdf_to_text: "2. PDF ke Teks",
+      tab_jpg_to_pdf: "3. JPG ke PDF",
+      tab_jpg_to_word: "4. JPG ke Word (OCR)",
+
+      // Mode Configs
+      modes: {
+        pdf_to_word: {
+          title: "1. Konversi PDF ke Dokumen Word (.docx)",
+          desc: "Mengekstrak PDF digital atau halaman scan non-selectable dengan RapidOCR offline, pemutihan watermark, dan pembukaan proteksi salin/cetak.",
+          btnText: "Mulai Konversi PDF ke Word",
+          acceptText: "Mendukung file PDF (Maks. bebas, diproses lokal)",
+        },
+        pdf_to_text: {
+          title: "2. Ekstraksi PDF ke File Teks (.txt)",
+          desc: "Mengekstrak teks digital secara langsung atau menjalankan OCR otomatis untuk scanned PDF. Teks dapat langsung disalin ke clipboard.",
+          btnText: "Mulai Ekstraksi Teks dari PDF",
+          acceptText: "Mendukung file PDF (Maks. bebas, diproses lokal)",
+        },
+        jpg_to_pdf: {
+          title: "3. Gabungkan Gambar / Foto ke Dokumen PDF (.pdf)",
+          desc: "Menyatukan satu atau banyak foto / scan dokumen (JPG, PNG, WEBP, BMP, TIFF) menjadi satu berkas PDF dengan kualitas tinggi.",
+          btnText: "Mulai Gabungkan Gambar ke PDF",
+          acceptText: "Mendukung JPG, PNG, WEBP, BMP, TIFF (Penggabungan multi-gambar)",
+        },
+        jpg_to_word: {
+          title: "4. Ekstrak Teks Gambar / Foto ke Word (.docx)",
+          desc: "Membaca teks dari gambar, kwitansi, foto dokumen atau buku ber-watermark menggunakan RapidOCR dan menyusunnya ke Word rapi.",
+          btnText: "Mulai OCR Gambar ke Word",
+          acceptText: "Mendukung JPG, PNG, WEBP, BMP, TIFF (Ekstraksi OCR multi-gambar)",
+        },
+      },
+
+      // Dropzone & Selected Files
+      dropzone_prompt: "Tarik & Lepaskan Berkas di Sini",
+      btn_browse: "Pilih Berkas dari Komputer",
+      selected_files_title: "Berkas Terpilih",
+      btn_clear_all: "Hapus Semua",
+      remove_file_title: "Hapus berkas ini",
+
+      // Options Panel
+      options_title: "Pengaturan Presisi & Privasi",
+      options_tag: "Zero Cloud Leakage",
+      opt_ocr_label: "Deteksi Scanned PDF Otomatis (RapidOCR)",
+      opt_ocr_hint: "Mengenali teks gambar non-selectable atau halaman scan dengan AI OCR offline.",
+      opt_wm_label: "Hapus Watermark & Cap Transparan",
+      opt_wm_hint: "Memutihkan background cap air/stempel/diskolorasi kertas dengan OpenCV thresholding.",
+      opt_threshold_label: "Ambang Batas Pemutihan (Threshold):",
+      opt_threshold_hint: "Piksel lebih terang dari nilai ini diubah menjadi putih bersih (#FFFFFF). Standar: 185.",
+      opt_unlock_label: "Buka Proteksi Salin & Cetak PDF",
+      opt_unlock_hint: "Otomatis mendekripsi PDF terkunci atau pembatasan izin tanpa password eksternal.",
+      opt_pagesize_label: "Format Tata Letak Halaman PDF",
+      opt_pagesize_hint: "Pilih rasio ukuran halaman dokumen PDF hasil gabungan.",
+      opt_pagesize_fit: "Ukuran Asli Gambar (Fit Resolution)",
+      opt_pagesize_a4_p: "Kertas A4 Tegak (Portrait)",
+      opt_pagesize_a4_l: "Kertas A4 Mendatar (Landscape)",
+      output_dir_label: "Folder Penyimpanan Hasil",
+      output_dir_hint: "Dokumen hasil konversi akan disimpan langsung di komputer Anda.",
+
+      // CTA Button
+      btn_choose_first: "Pilih Berkas Terlebih Dahulu",
+      files_suffix: "Berkas",
+      file_suffix: "Berkas",
+
+      // Progress Card
+      progress_title: "Sedang Mengonversi Dokumen Secara Lokal...",
+      progress_status_sending: "Mengirim berkas ke memori pemrosesan lokal...",
+      progress_finished: "Konversi selesai dengan sukses!",
+
+      // Result Card
+      result_title: "Konversi Berhasil Selesai!",
+      label_method: "Metode Proses",
+      label_pages: "Jumlah Halaman / Berkas",
+      label_security: "Keamanan Data",
+      security_value: "100% Offline (Localhost)",
+      btn_open_file: "Buka File Langsung",
+      btn_open_folder: "Tampilkan di Folder Explorer",
+      btn_copy_text: "Salin Teks ke Clipboard",
+      btn_convert_another: "Konversi Dokumen Lain",
+      text_preview_title: "Pratinjau Teks yang Diekstrak:",
+
+      // Units & Plurals
+      unit_page: "Halaman",
+      unit_pages: "Halaman",
+      unit_files: "Berkas",
+      unit_file: "Berkas",
+      unit_images: "Gambar",
+      unit_image: "Gambar",
+      unit_tables: "Tabel",
+      unit_table: "Tabel",
+      unit_chars: "Karakter",
+
+      // Notifications
+      toast_copied: "Teks berhasil disalin ke clipboard!",
+      toast_success: "Konversi berhasil diselesaikan 100% lokal!",
+      alert_open_fail: "Tidak dapat membuka file langsung: ",
+      alert_server_fail: "Gagal menghubungi server lokal: ",
+      alert_convert_fail: "Gagal melakukan konversi: ",
+      alert_start_fail: "Terjadi kesalahan saat memulai konversi: ",
+    },
+  };
+
+  // Base Mode Specifications (Non-localized specs)
+  const MODE_SPECS = {
+    pdf_to_word: {
+      accept: ".pdf",
+      multiple: false,
+      showOcr: true,
+      showUnlock: true,
+      showPageSize: false,
+    },
+    pdf_to_text: {
+      accept: ".pdf",
+      multiple: false,
+      showOcr: true,
+      showUnlock: true,
+      showPageSize: false,
+    },
+    jpg_to_pdf: {
+      accept: ".jpg,.jpeg,.png,.webp,.bmp,.tiff",
+      multiple: true,
+      showOcr: false,
+      showUnlock: false,
+      showPageSize: true,
+    },
+    jpg_to_word: {
+      accept: ".jpg,.jpeg,.png,.webp,.bmp,.tiff",
+      multiple: true,
+      showOcr: false,
+      showUnlock: false,
+      showPageSize: false,
+    },
+  };
+
   // Application State
   const state = {
+    language: "en", // Default strictly English
     currentMode: "pdf_to_word",
     selectedFiles: [], // Array of { name, size, type, data }
     outputDir: "C:\\Users\\Alfa\\Downloads",
@@ -26,6 +279,10 @@
   const fileInput = document.getElementById("fileInput");
   const btnBrowse = document.getElementById("btnBrowse");
   const dropzoneAcceptText = document.getElementById("dropzoneAcceptText");
+
+  const langBtnEn = document.getElementById("langBtnEn");
+  const langBtnId = document.getElementById("langBtnId");
+  const privacyPill = document.getElementById("privacyPill");
 
   const filesPreviewSection = document.getElementById("filesPreviewSection");
   const filesList = document.getElementById("filesList");
@@ -68,53 +325,100 @@
   const toast = document.getElementById("toast");
   const toastMsg = document.getElementById("toastMsg");
 
-  // Mode Configuration Specs
-  const MODE_CONFIGS = {
-    pdf_to_word: {
-      title: "1. Konversi PDF ke Dokumen Word (.docx)",
-      desc: "Mengekstrak PDF digital atau halaman scan non-selectable dengan RapidOCR offline, pemutihan watermark, dan buka proteksi PDF.",
-      accept: ".pdf",
-      multiple: false,
-      btnText: "Mulai Konversi PDF ke Word",
-      showOcr: true,
-      showUnlock: true,
-      showPageSize: false,
-    },
-    pdf_to_text: {
-      title: "2. Ekstraksi PDF ke File Teks (.txt)",
-      desc: "Mengekstrak teks digital secara langsung atau menjalankan OCR otomatis untuk scanned PDF. Teks dapat langsung disalin ke clipboard.",
-      accept: ".pdf",
-      multiple: false,
-      btnText: "Mulai Ekstraksi Teks dari PDF",
-      showOcr: true,
-      showUnlock: true,
-      showPageSize: false,
-    },
-    jpg_to_pdf: {
-      title: "3. Gabungkan Gambar / Foto ke Dokumen PDF (.pdf)",
-      desc: "Menyatukan satu atau banyak foto / scan dokumen (JPG, PNG, WEBP, BMP) menjadi satu berkas PDF dengan kualitas tinggi.",
-      accept: ".jpg,.jpeg,.png,.webp,.bmp,.tiff",
-      multiple: true,
-      btnText: "Mulai Gabungkan Gambar ke PDF",
-      showOcr: false,
-      showUnlock: false,
-      showPageSize: true,
-    },
-    jpg_to_word: {
-      title: "4. Ekstrak Teks Gambar / Foto ke Word (.docx)",
-      desc: "Membaca teks dari gambar, kwitansi, foto dokumen atau buku ber-watermark menggunakan RapidOCR dan menyusunnya ke Word rapi.",
-      accept: ".jpg,.jpeg,.png,.webp,.bmp,.tiff",
-      multiple: true,
-      btnText: "Mulai OCR Gambar ke Word",
-      showOcr: false,
-      showUnlock: false,
-      showPageSize: false,
-    },
-  };
+  // Helper to get active dictionary
+  function dict() {
+    return I18N[state.language] || I18N.en;
+  }
 
-  // Initialize
-  function init() {
+  // Switch Language & Persist across sessions
+  function setLanguage(lang, persist = true) {
+    if (lang !== "en" && lang !== "id") {
+      lang = "en";
+    }
+    state.language = lang;
+
+    // Update Language Toggle Buttons
+    if (langBtnEn && langBtnId) {
+      langBtnEn.classList.toggle("active", lang === "en");
+      langBtnId.classList.toggle("active", lang === "id");
+    }
+
+    // Update document metadata
+    document.documentElement.lang = lang;
+    const currentDict = dict();
+    document.title = currentDict.page_title;
+    if (privacyPill) {
+      privacyPill.title = currentDict.privacy_pill_tooltip;
+    }
+
+    // Update all elements with data-i18n
+    document.querySelectorAll("[data-i18n]").forEach((el) => {
+      const key = el.dataset.i18n;
+      if (currentDict[key]) {
+        el.textContent = currentDict[key];
+      }
+    });
+
+    // Update mode banner & inputs
+    updateModeBanner();
+    updateConvertButtonState();
+
+    // Re-render result badge if currently visible
+    if (state.lastResult) {
+      renderResultBadges(state.lastResult);
+    }
+
+    // Persist Language Settings
+    if (persist) {
+      try {
+        localStorage.setItem("cmd_language", lang);
+      } catch (e) {
+        console.warn("Could not save to localStorage:", e);
+      }
+      fetch("/api/settings", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ language: lang }),
+      }).catch((e) => console.warn("Could not persist language to server:", e));
+    }
+  }
+
+  // Load Initial Language (localStorage -> /api/settings -> default "en")
+  async function loadInitialLanguage() {
+    let savedLang = null;
+    try {
+      savedLang = localStorage.getItem("cmd_language");
+    } catch (e) {
+      savedLang = null;
+    }
+
+    if (savedLang === "en" || savedLang === "id") {
+      setLanguage(savedLang, false);
+      return;
+    }
+
+    // Fallback: check server settings
+    try {
+      const res = await fetch("/api/settings");
+      if (res.ok) {
+        const data = await res.json();
+        if (data.language === "en" || data.language === "id") {
+          setLanguage(data.language, false);
+          return;
+        }
+      }
+    } catch (e) {
+      // server offline or request failed
+    }
+
+    // Default strictly to English
+    setLanguage("en", false);
+  }
+
+  // Initialize Application
+  async function init() {
     setupEventListeners();
+    await loadInitialLanguage();
     fetchSystemStatus();
     switchMode("pdf_to_word");
     startHeartbeat();
@@ -130,36 +434,51 @@
           state.outputDir = data.default_output_dir;
           outputDirDisplay.textContent = state.outputDir;
         }
+        // If localStorage had nothing, check if server has saved language
+        const localSaved = localStorage.getItem("cmd_language");
+        if (!localSaved && data.language && (data.language === "en" || data.language === "id")) {
+          setLanguage(data.language, false);
+        }
       }
     } catch (e) {
       console.warn("Status fetch failed:", e);
     }
   }
 
+  // Update Mode Banner texts based on active mode & language
+  function updateModeBanner() {
+    const currentDict = dict();
+    const modeInfo = currentDict.modes[state.currentMode];
+    const spec = MODE_SPECS[state.currentMode];
+    if (!modeInfo || !spec) return;
+
+    bannerTitle.textContent = modeInfo.title;
+    bannerDesc.textContent = modeInfo.desc;
+    dropzoneAcceptText.textContent = modeInfo.acceptText;
+  }
+
   // Switch Active Mode
   function switchMode(modeKey) {
     state.currentMode = modeKey;
-    const config = MODE_CONFIGS[modeKey];
-    if (!config) return;
+    const spec = MODE_SPECS[modeKey];
+    if (!spec) return;
 
     // Update Nav Tab Active States
     tabButtons.forEach((btn) => {
       btn.classList.toggle("active", btn.dataset.mode === modeKey);
     });
 
-    // Update Mode Banner
-    bannerTitle.textContent = config.title;
-    bannerDesc.textContent = config.desc;
+    // Update Mode Banner & Text
+    updateModeBanner();
 
     // Update File Input Constraints
-    fileInput.accept = config.accept;
-    fileInput.multiple = config.multiple;
-    dropzoneAcceptText.textContent = `Mendukung format: ${config.accept.replace(/\./g, " ").toUpperCase()}`;
+    fileInput.accept = spec.accept;
+    fileInput.multiple = spec.multiple;
 
     // Toggle Specific Option Visibility
-    optOcrContainer.classList.toggle("hidden", !config.showOcr);
-    optUnlockContainer.classList.toggle("hidden", !config.showUnlock);
-    optPageSizeContainer.classList.toggle("hidden", !config.showPageSize);
+    optOcrContainer.classList.toggle("hidden", !spec.showOcr);
+    optUnlockContainer.classList.toggle("hidden", !spec.showUnlock);
+    optPageSizeContainer.classList.toggle("hidden", !spec.showPageSize);
 
     // Reset Selected Files when switching modes
     state.selectedFiles = [];
@@ -180,10 +499,10 @@
   // Handle Files Selected
   async function handleFilesSelected(fileList) {
     if (!fileList || fileList.length === 0) return;
-    const config = MODE_CONFIGS[state.currentMode];
+    const spec = MODE_SPECS[state.currentMode];
 
     const newFiles = Array.from(fileList);
-    const filesToLoad = config.multiple ? newFiles : [newFiles[0]];
+    const filesToLoad = spec.multiple ? newFiles : [newFiles[0]];
 
     for (const file of filesToLoad) {
       try {
@@ -193,7 +512,7 @@
           (f) => f.name === file.name && f.size === file.size
         );
         if (!exists) {
-          if (!config.multiple) {
+          if (!spec.multiple) {
             state.selectedFiles = [{ name: file.name, size: file.size, type: file.type, data: dataUrl }];
           } else {
             state.selectedFiles.push({ name: file.name, size: file.size, type: file.type, data: dataUrl });
@@ -229,6 +548,7 @@
     filesPreviewSection.classList.remove("hidden");
     filesCount.textContent = state.selectedFiles.length.toString();
 
+    const currentDict = dict();
     state.selectedFiles.forEach((file, index) => {
       const row = document.createElement("div");
       row.className = "file-row";
@@ -241,7 +561,7 @@
           <span class="file-name" title="${file.name}">${file.name}</span>
           <span class="file-size">${formatBytes(file.size)}</span>
         </div>
-        <button type="button" class="btn-remove-file" data-index="${index}" title="Hapus berkas ini">
+        <button type="button" class="btn-remove-file" data-index="${index}" title="${currentDict.remove_file_title}">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <line x1="18" y1="6" x2="6" y2="18"/>
             <line x1="6" y1="6" x2="18" y2="18"/>
@@ -261,17 +581,21 @@
 
   // Update Convert Button State
   function updateConvertButtonState() {
-    const config = MODE_CONFIGS[state.currentMode];
+    const currentDict = dict();
+    const modeInfo = currentDict.modes[state.currentMode];
+    if (!modeInfo) return;
+
     if (state.selectedFiles.length === 0) {
       btnStartConvert.disabled = true;
-      btnConvertText.textContent = "Pilih Berkas Terlebih Dahulu";
+      btnConvertText.textContent = currentDict.btn_choose_first;
     } else {
       btnStartConvert.disabled = false;
       const count = state.selectedFiles.length;
       if (count === 1) {
-        btnConvertText.textContent = config.btnText;
+        btnConvertText.textContent = modeInfo.btnText;
       } else {
-        btnConvertText.textContent = `${config.btnText} (${count} Berkas)`;
+        const suffix = count > 1 ? currentDict.files_suffix : currentDict.file_suffix;
+        btnConvertText.textContent = `${modeInfo.btnText} (${count} ${suffix})`;
       }
     }
   }
@@ -292,12 +616,13 @@
   async function startConversion() {
     if (state.selectedFiles.length === 0) return;
 
+    const currentDict = dict();
     resetResultViews();
     btnStartConvert.disabled = true;
     progressCard.classList.remove("hidden");
     progressBarFill.style.width = "5%";
     progressPercentBadge.textContent = "5%";
-    progressStatusText.textContent = "Mengirim berkas ke memori pemrosesan lokal...";
+    progressStatusText.textContent = currentDict.progress_status_sending;
 
     const jobId = "job_" + Date.now();
     state.activeJobId = jobId;
@@ -325,13 +650,13 @@
       });
 
       if (!resp.ok) {
-        throw new Error("Gagal memulai proses konversi.");
+        throw new Error("Local conversion request failed to start.");
       }
 
       // Start Polling for Progress
       pollJobProgress(jobId);
     } catch (err) {
-      alert("Terjadi kesalahan saat memulai konversi: " + err.message);
+      alert(currentDict.alert_start_fail + err.message);
       progressCard.classList.add("hidden");
       btnStartConvert.disabled = false;
     }
@@ -339,6 +664,7 @@
 
   // Poll Job Progress
   function pollJobProgress(jobId) {
+    const currentDict = dict();
     state.pollInterval = setInterval(async () => {
       try {
         const resp = await fetch(`/api/progress?job_id=${jobId}`);
@@ -357,7 +683,7 @@
           state.pollInterval = null;
 
           if (data.error) {
-            alert("Gagal melakukan konversi: " + data.error);
+            alert(currentDict.alert_convert_fail + data.error);
             progressCard.classList.add("hidden");
             btnStartConvert.disabled = false;
             return;
@@ -372,8 +698,36 @@
     }, 350);
   }
 
+  // Render Badges in Result View
+  function renderResultBadges(result) {
+    const currentDict = dict();
+    resModeBadge.textContent = result.mode || "Hybrid Layout";
+
+    let metaText = "";
+    if (result.pages) {
+      const pageUnit = result.pages > 1 ? currentDict.unit_pages : currentDict.unit_page;
+      metaText = `${result.pages} ${pageUnit}`;
+    } else {
+      const count = result.images_count || 1;
+      const fileUnit = count > 1 ? currentDict.unit_files : currentDict.unit_file;
+      metaText = `${count} ${fileUnit}`;
+    }
+
+    if (result.images_embedded) {
+      const imgUnit = result.images_embedded > 1 ? currentDict.unit_images : currentDict.unit_image;
+      metaText += ` (${result.images_embedded} ${imgUnit}`;
+      if (result.tables_embedded) {
+        const tblUnit = result.tables_embedded > 1 ? currentDict.unit_tables : currentDict.unit_table;
+        metaText += `, ${result.tables_embedded} ${tblUnit}`;
+      }
+      metaText += `)`;
+    }
+    resPagesBadge.textContent = metaText;
+  }
+
   // Conversion Success Handler
   function handleConversionSuccess(result) {
+    const currentDict = dict();
     progressCard.classList.add("hidden");
     resultCard.classList.remove("hidden");
     state.lastResult = result;
@@ -381,23 +735,14 @@
     const outPath = result.output_path || "";
     resultFilePath.textContent = outPath;
 
-    // Badges
-    resModeBadge.textContent = result.mode || "Hybrid Layout";
-    let metaText = result.pages ? `${result.pages} Halaman` : `${result.images_count || 1} Berkas`;
-    if (result.images_embedded) {
-      metaText += ` (${result.images_embedded} Gambar`;
-      if (result.tables_embedded) {
-        metaText += `, ${result.tables_embedded} Tabel`;
-      }
-      metaText += `)`;
-    }
-    resPagesBadge.textContent = metaText;
+    renderResultBadges(result);
 
     // Handle Text Mode Preview & Copy
     if (state.currentMode === "pdf_to_text" && result.text) {
       textPreviewContainer.classList.remove("hidden");
       textPreviewBox.value = result.text;
-      charCountLabel.textContent = `${result.char_count || result.text.length} Karakter`;
+      const count = result.char_count || result.text.length;
+      charCountLabel.textContent = `${count} ${currentDict.unit_chars}`;
       btnCopyText.classList.remove("hidden");
     } else {
       textPreviewContainer.classList.add("hidden");
@@ -405,7 +750,7 @@
     }
 
     btnStartConvert.disabled = false;
-    showToast("Konversi berhasil diselesaikan 100% lokal!");
+    showToast(currentDict.toast_success);
   }
 
   // Toast Notification
@@ -419,6 +764,7 @@
 
   // Native Open File via Windows API
   async function openConvertedFile() {
+    const currentDict = dict();
     if (!state.lastResult || !state.lastResult.output_path) return;
     try {
       const resp = await fetch("/api/open-file", {
@@ -428,10 +774,10 @@
       });
       const data = await resp.json();
       if (!data.success) {
-        alert("Tidak dapat membuka file langsung: " + (data.error || ""));
+        alert(currentDict.alert_open_fail + (data.error || ""));
       }
     } catch (e) {
-      alert("Gagal menghubungi server lokal: " + e.message);
+      alert(currentDict.alert_server_fail + e.message);
     }
   }
 
@@ -451,14 +797,23 @@
 
   // Copy Extracted Text
   function copyTextToClipboard() {
+    const currentDict = dict();
     if (!textPreviewBox.value) return;
     navigator.clipboard.writeText(textPreviewBox.value).then(() => {
-      showToast("Teks berhasil disalin ke clipboard!");
+      showToast(currentDict.toast_copied);
     });
   }
 
   // Setup Event Listeners
   function setupEventListeners() {
+    // Language Switch Buttons
+    if (langBtnEn) {
+      langBtnEn.addEventListener("click", () => setLanguage("en", true));
+    }
+    if (langBtnId) {
+      langBtnId.addEventListener("click", () => setLanguage("id", true));
+    }
+
     // Nav Tab Clicks
     tabButtons.forEach((btn) => {
       btn.addEventListener("click", () => {

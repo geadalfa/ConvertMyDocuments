@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ConvertMyDocuments v1.1.0 - Zero-Leakage Offline Document & OCR Suite</title>
+  <title id="pageTitle">ConvertMyDocuments v1.1.1 - Zero-Leakage Offline Document & OCR Suite</title>
   <link rel="icon" type="image/x-icon" href="favicon.ico">
   <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
   <link rel="manifest" href="manifest.json">
@@ -25,19 +25,29 @@
           </svg>
         </div>
         <div class="header-titles">
-          <h1 class="app-title">ConvertMyDocuments <span class="version-tag">v1.1.0</span></h1>
-          <p class="app-subtitle">Zero-Leakage Local Document & OCR Suite</p>
+          <h1 class="app-title">ConvertMyDocuments <span class="version-tag">v1.1.1</span></h1>
+          <p class="app-subtitle" id="appSubtitle" data-i18n="app_subtitle">Zero-Leakage Local Document & OCR Suite</p>
         </div>
       </div>
 
       <div class="header-right">
-        <div class="privacy-pill" title="Semua berkas diproses 100% lokal di memori PC Alfa tanpa internet.">
+        <!-- Bilingual Language Selector (English Default & Persisted) -->
+        <div class="lang-switch-group" role="group" aria-label="Language Selector">
+          <button type="button" class="lang-btn active" data-lang="en" id="langBtnEn" title="English">
+            <span class="lang-text">EN</span>
+          </button>
+          <button type="button" class="lang-btn" data-lang="id" id="langBtnId" title="Bahasa Indonesia">
+            <span class="lang-text">ID</span>
+          </button>
+        </div>
+
+        <div class="privacy-pill" id="privacyPill" title="All files processed 100% locally in your PC memory without internet.">
           <span class="status-dot"></span>
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <rect width="18" height="11" x="3" y="11" rx="2" ry="2"/>
             <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
           </svg>
-          <span class="pill-text">100% Offline (Localhost)</span>
+          <span class="pill-text" id="privacyPillText" data-i18n="privacy_pill_text">100% Offline (Localhost)</span>
         </div>
       </div>
     </header>
@@ -50,7 +60,7 @@
           <polyline points="14 2 14 8 20 8"/>
           <path d="m9 15 2 2 4-4"/>
         </svg>
-        <span>1. PDF to Word</span>
+        <span data-i18n="tab_pdf_to_word">1. PDF to Word</span>
         <span class="badge-docx">.docx</span>
       </button>
 
@@ -61,7 +71,7 @@
           <line x1="8" x2="16" y1="13" y2="13"/>
           <line x1="8" x2="16" y1="17" y2="17"/>
         </svg>
-        <span>2. PDF to Text</span>
+        <span data-i18n="tab_pdf_to_text">2. PDF to Text</span>
         <span class="badge-txt">.txt</span>
       </button>
 
@@ -71,7 +81,7 @@
           <circle cx="9" cy="9" r="2"/>
           <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/>
         </svg>
-        <span>3. JPG to PDF</span>
+        <span data-i18n="tab_jpg_to_pdf">3. JPG to PDF</span>
         <span class="badge-pdf">.pdf</span>
       </button>
 
@@ -83,7 +93,7 @@
           <path d="M20 17v3h-3"/>
           <circle cx="12" cy="12" r="3"/>
         </svg>
-        <span>4. JPG to Word (OCR)</span>
+        <span data-i18n="tab_jpg_to_word">4. JPG to Word (OCR)</span>
         <span class="badge-ocr">OCR</span>
       </button>
     </nav>
@@ -99,10 +109,9 @@
           </svg>
         </div>
         <div class="banner-content">
-          <h2 class="banner-title" id="bannerTitle">Konversi PDF ke Dokumen Word (.docx)</h2>
+          <h2 class="banner-title" id="bannerTitle">1. Convert PDF to Word Document (.docx)</h2>
           <p class="banner-desc" id="bannerDesc">
-            Mendukung PDF digital langsung maupun PDF hasil scan (gambar non-selectable) via RapidOCR offline.
-            Dilengkapi pemutihan watermark dan pembukaan proteksi salin/cetak.
+            Extract digital PDFs or scanned non-selectable pages with offline RapidOCR, watermark bleaching, and copy/print restriction unlocking.
           </p>
         </div>
       </div>
@@ -119,14 +128,14 @@
             </svg>
           </div>
           <div class="dropzone-texts">
-            <h3 class="dropzone-prompt">Tarik & Lepaskan Berkas di Sini</h3>
-            <p class="dropzone-sub" id="dropzoneAcceptText">Mendukung file PDF (Maks. bebas, diproses lokal)</p>
+            <h3 class="dropzone-prompt" id="dropzonePrompt" data-i18n="dropzone_prompt">Drag & Drop Files Here</h3>
+            <p class="dropzone-sub" id="dropzoneAcceptText">Supports PDF files (No size limits, processed locally)</p>
           </div>
           <button type="button" class="btn-browse" id="btnBrowse">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 8 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"/>
             </svg>
-            Pilih Berkas dari Komputer
+            <span data-i18n="btn_browse">Choose Files from Computer</span>
           </button>
         </div>
       </section>
@@ -134,8 +143,8 @@
       <!-- Selected Files List -->
       <section class="files-preview-section hidden" id="filesPreviewSection">
         <div class="section-header">
-          <h4 class="section-title">Berkas Terpilih (<span id="filesCount">0</span>)</h4>
-          <button type="button" class="btn-clear-files" id="btnClearFiles">Hapus Semua</button>
+          <h4 class="section-title"><span data-i18n="selected_files_title">Selected Files</span> (<span id="filesCount">0</span>)</h4>
+          <button type="button" class="btn-clear-files" id="btnClearFiles" data-i18n="btn_clear_all">Clear All</button>
         </div>
         <div class="files-list" id="filesList">
           <!-- Dynamic File Cards -->
@@ -150,17 +159,17 @@
               <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/>
               <circle cx="12" cy="12" r="3"/>
             </svg>
-            <span>Pengaturan Presisi & Privasi</span>
+            <span data-i18n="options_title">Precision & Privacy Settings</span>
           </div>
-          <span class="options-tag">Zero Cloud Leakage</span>
+          <span class="options-tag" data-i18n="options_tag">Zero Cloud Leakage</span>
         </div>
 
         <div class="options-grid">
           <!-- Option: OCR Mode (For PDF tabs) -->
           <div class="option-card" id="optOcrContainer">
             <div class="option-text">
-              <label class="option-label" for="optOcrMode">Deteksi Scanned PDF Otomatis (RapidOCR)</label>
-              <p class="option-hint">Mengenali teks gambar non-selectable atau halaman scan dengan AI OCR offline.</p>
+              <label class="option-label" for="optAutoOcr" data-i18n="opt_ocr_label">Auto Scanned PDF Detection (RapidOCR)</label>
+              <p class="option-hint" data-i18n="opt_ocr_hint">Recognize non-selectable text or scanned pages with offline AI OCR.</p>
             </div>
             <label class="toggle-switch">
               <input type="checkbox" id="optAutoOcr" checked>
@@ -171,8 +180,8 @@
           <!-- Option: Bleach Watermark -->
           <div class="option-card" id="optWatermarkContainer">
             <div class="option-text">
-              <label class="option-label" for="optBleachWm">Hapus Watermark & Cap Transparan</label>
-              <p class="option-hint">Memutihkan background cap air/stempel/diskolorasi kertas dengan OpenCV thresholding.</p>
+              <label class="option-label" for="optBleachWm" data-i18n="opt_wm_label">Remove Watermarks & Transparent Stamps</label>
+              <p class="option-hint" data-i18n="opt_wm_hint">Bleach background watermarks, stamps, or paper discoloration with OpenCV thresholding.</p>
             </div>
             <label class="toggle-switch">
               <input type="checkbox" id="optBleachWm">
@@ -183,8 +192,8 @@
           <!-- Slider: Watermark Threshold (Shows when Bleach is ON) -->
           <div class="option-card full-width hidden" id="optThresholdRow">
             <div class="option-text">
-              <label class="option-label">Ambang Batas Pemutihan (Threshold): <span id="thresholdVal" class="mono-badge">185</span></label>
-              <p class="option-hint">Piksel lebih terang dari nilai ini diubah menjadi putih bersih (#FFFFFF). Standar: 185.</p>
+              <label class="option-label"><span data-i18n="opt_threshold_label">Bleach Threshold:</span> <span id="thresholdVal" class="mono-badge">185</span></label>
+              <p class="option-hint" data-i18n="opt_threshold_hint">Pixels brighter than this value are converted to clean pure white (#FFFFFF). Default: 185.</p>
             </div>
             <div class="slider-wrapper">
               <input type="range" id="optWmThreshold" min="140" max="230" value="185" class="range-slider">
@@ -194,8 +203,8 @@
           <!-- Option: Auto Unlock -->
           <div class="option-card" id="optUnlockContainer">
             <div class="option-text">
-              <label class="option-label" for="optUnlock">Buka Proteksi Salin & Cetak PDF</label>
-              <p class="option-hint">Otomatis mendekripsi PDF terkunci atau pembatasan izin tanpa password eksternal.</p>
+              <label class="option-label" for="optUnlock" data-i18n="opt_unlock_label">Unlock PDF Copy & Print Restrictions</label>
+              <p class="option-hint" data-i18n="opt_unlock_hint">Automatically decrypts protected PDFs or permission locks without external password.</p>
             </div>
             <label class="toggle-switch">
               <input type="checkbox" id="optUnlock" checked>
@@ -206,21 +215,21 @@
           <!-- Option: Page Layout for JPG to PDF -->
           <div class="option-card hidden" id="optPageSizeContainer">
             <div class="option-text">
-              <label class="option-label" for="optPageSize">Format Tata Letak Halaman PDF</label>
-              <p class="option-hint">Pilih rasio ukuran halaman dokumen PDF hasil gabungan.</p>
+              <label class="option-label" for="optPageSize" data-i18n="opt_pagesize_label">PDF Page Layout Format</label>
+              <p class="option-hint" data-i18n="opt_pagesize_hint">Choose page size ratio for the merged PDF document.</p>
             </div>
             <select id="optPageSize" class="select-input">
-              <option value="fit" selected>Ukuran Asli Gambar (Fit Resolution)</option>
-              <option value="a4_portrait">Kertas A4 Tegak (Portrait)</option>
-              <option value="a4_landscape">Kertas A4 Mendatar (Landscape)</option>
+              <option value="fit" data-i18n="opt_pagesize_fit" selected>Original Image Size (Fit Resolution)</option>
+              <option value="a4_portrait" data-i18n="opt_pagesize_a4_p">A4 Paper (Portrait)</option>
+              <option value="a4_landscape" data-i18n="opt_pagesize_a4_l">A4 Paper (Landscape)</option>
             </select>
           </div>
 
           <!-- Output Directory -->
           <div class="option-card full-width">
             <div class="option-text">
-              <label class="option-label">Folder Penyimpanan Hasil</label>
-              <p class="option-hint">Dokumen hasil konversi akan disimpan langsung di komputer Anda.</p>
+              <label class="option-label" data-i18n="output_dir_label">Output Destination Folder</label>
+              <p class="option-hint" data-i18n="output_dir_hint">Converted documents will be saved directly on your computer.</p>
             </div>
             <div class="path-display-box">
               <span id="outputDirDisplay" class="path-text">C:\Users\Alfa\Downloads</span>
@@ -235,7 +244,7 @@
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <polygon points="5 3 19 12 5 21 5 3"/>
           </svg>
-          <span id="btnConvertText">Pilih Berkas Terlebih Dahulu</span>
+          <span id="btnConvertText" data-i18n="btn_choose_first">Choose File(s) First</span>
         </button>
       </div>
 
@@ -244,8 +253,8 @@
         <div class="progress-header">
           <div class="spinner-ring"></div>
           <div class="progress-info">
-            <h4 class="progress-title">Sedang Mengonversi Dokumen Secara Lokal...</h4>
-            <p class="progress-status-text" id="progressStatusText">Memeriksa dokumen di memori...</p>
+            <h4 class="progress-title" id="progressTitle" data-i18n="progress_title">Converting Document Locally...</h4>
+            <p class="progress-status-text" id="progressStatusText">Sending files to local processing memory...</p>
           </div>
           <span class="progress-percent-badge" id="progressPercentBadge">0%</span>
         </div>
@@ -263,23 +272,23 @@
             </svg>
           </div>
           <div class="result-meta">
-            <h3 class="result-title">Konversi Berhasil Selesai!</h3>
+            <h3 class="result-title" id="resultTitle" data-i18n="result_title">Conversion Completed Successfully!</h3>
             <p class="result-path" id="resultFilePath">C:\Users\Alfa\Downloads\document_converted.docx</p>
           </div>
         </div>
 
         <div class="result-details-grid" id="resultDetailsGrid">
           <div class="detail-item">
-            <span class="detail-label">Metode Proses</span>
+            <span class="detail-label" data-i18n="label_method">Process Method</span>
             <span class="detail-value" id="resModeBadge">Direct Layout</span>
           </div>
           <div class="detail-item">
-            <span class="detail-label">Jumlah Halaman / Berkas</span>
-            <span class="detail-value" id="resPagesBadge">1 Halaman</span>
+            <span class="detail-label" data-i18n="label_pages">Pages / Files Count</span>
+            <span class="detail-value" id="resPagesBadge">1 Page</span>
           </div>
           <div class="detail-item">
-            <span class="detail-label">Keamanan Data</span>
-            <span class="detail-value text-emerald">100% Offline (Localhost)</span>
+            <span class="detail-label" data-i18n="label_security">Data Security</span>
+            <span class="detail-value text-emerald" id="resSecurityBadge" data-i18n="security_value">100% Offline (Localhost)</span>
           </div>
         </div>
 
@@ -291,14 +300,14 @@
               <polyline points="15 3 21 3 21 9"/>
               <line x1="10" x2="21" y1="14" y2="3"/>
             </svg>
-            Buka File Langsung
+            <span data-i18n="btn_open_file">Open File Directly</span>
           </button>
 
           <button type="button" class="btn-action-secondary" id="btnOpenFolder">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 8 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"/>
             </svg>
-            Tampilkan di Folder Explorer
+            <span data-i18n="btn_open_folder">Show in Folder Explorer</span>
           </button>
 
           <button type="button" class="btn-action-secondary hidden" id="btnCopyText">
@@ -306,7 +315,7 @@
               <rect width="14" height="14" x="8" y="8" rx="2" ry="2"/>
               <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/>
             </svg>
-            Salin Teks ke Clipboard
+            <span data-i18n="btn_copy_text">Copy Text to Clipboard</span>
           </button>
 
           <button type="button" class="btn-action-ghost" id="btnConvertAnother">
@@ -316,15 +325,15 @@
               <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/>
               <path d="M8 16H3v5"/>
             </svg>
-            Konversi Dokumen Lain
+            <span data-i18n="btn_convert_another">Convert Another Document</span>
           </button>
         </div>
 
         <!-- Text Preview Box (For PDF to Text mode) -->
         <div class="text-preview-container hidden" id="textPreviewContainer">
           <div class="text-preview-header">
-            <span>Pratinjau Teks yang Diekstrak:</span>
-            <span id="charCountLabel" class="mono-badge">0 Karakter</span>
+            <span data-i18n="text_preview_title">Extracted Text Preview:</span>
+            <span id="charCountLabel" class="mono-badge">0 Characters</span>
           </div>
           <textarea id="textPreviewBox" class="text-preview-box" readonly></textarea>
         </div>
@@ -333,7 +342,7 @@
 
     <!-- Toast Notification -->
     <div class="toast-notification hidden" id="toast">
-      <span id="toastMsg">Teks disalin ke clipboard!</span>
+      <span id="toastMsg">Text copied to clipboard!</span>
     </div>
   </div>
 
