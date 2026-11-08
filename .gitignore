@@ -1,0 +1,13 @@
+__pycache__/
+*.pyc
+*.pyo
+build/
+dist/
+installer_output/
+*.tmp
+*.log
+*test_*.docx
+*test_*.pdf
+*test_*.png
+*_converted*.docx
+
