@@ -116,6 +116,22 @@
       alert_server_fail: "Failed to connect to local server: ",
       alert_convert_fail: "Conversion failed: ",
       alert_start_fail: "Error occurred while starting conversion: ",
+
+      // Settings & Updates
+      settings_btn_title: "Settings & Updates",
+      settings_modal_title: "Settings & Updates",
+      setting_auto_update_label: "Automatic Updates from GitHub",
+      setting_auto_update_hint: "Automatically check for newer releases and download the installer in background (Default ON).",
+      setting_check_updates_btn: "Check for Updates Now",
+      setting_checking: "Checking for updates...",
+      setting_version_label: "Installed Version:",
+      update_banner_available: "New Update Available:",
+      update_banner_ready: "Update Ready to Install:",
+      update_banner_downloading: "Downloading update from GitHub...",
+      update_btn_update: "Update Now",
+      update_btn_restart: "Restart & Install",
+      update_toast_up_to_date: "ConvertMyDocuments is up to date (v1.1.2).",
+      update_toast_installing: "Launching installer... ConvertMyDocuments will close.",
     },
 
     id: {
@@ -224,6 +240,22 @@
       alert_server_fail: "Gagal menghubungi server lokal: ",
       alert_convert_fail: "Gagal melakukan konversi: ",
       alert_start_fail: "Terjadi kesalahan saat memulai konversi: ",
+
+      // Settings & Updates
+      settings_btn_title: "Pengaturan & Pembaruan",
+      settings_modal_title: "Pengaturan & Pembaruan",
+      setting_auto_update_label: "Pembaruan Otomatis dari GitHub",
+      setting_auto_update_hint: "Otomatis memeriksa rilis terbaru dan mengunduh installer di latar belakang (Default AKTIF).",
+      setting_check_updates_btn: "Periksa Pembaruan Sekarang",
+      setting_checking: "Memeriksa pembaruan...",
+      setting_version_label: "Versi Terpasang:",
+      update_banner_available: "Pembaruan Baru Tersedia:",
+      update_banner_ready: "Pembaruan Siap Dipasang:",
+      update_banner_downloading: "Mengunduh pembaruan dari GitHub...",
+      update_btn_update: "Perbarui Sekarang",
+      update_btn_restart: "Pasang & Mulai Ulang",
+      update_toast_up_to_date: "ConvertMyDocuments sudah versi terbaru (v1.1.2).",
+      update_toast_installing: "Menjalankan installer... ConvertMyDocuments akan ditutup.",
     },
   };
 
@@ -363,6 +395,20 @@
     updateModeBanner();
     updateConvertButtonState();
 
+    // Update Settings Modal elements if present
+    const settingsModalTitle = document.getElementById("settingsModalTitle");
+    if (settingsModalTitle) settingsModalTitle.textContent = currentDict.settings_modal_title;
+    const lblAutoUpdateSetting = document.getElementById("lblAutoUpdateSetting");
+    if (lblAutoUpdateSetting) lblAutoUpdateSetting.textContent = currentDict.setting_auto_update_label;
+    const hintAutoUpdateSetting = document.getElementById("hintAutoUpdateSetting");
+    if (hintAutoUpdateSetting) hintAutoUpdateSetting.textContent = currentDict.setting_auto_update_hint;
+    const lblInstalledVersion = document.getElementById("lblInstalledVersion");
+    if (lblInstalledVersion) lblInstalledVersion.textContent = currentDict.setting_version_label;
+    const txtCheckUpdateModal = document.getElementById("txtCheckUpdateModal");
+    if (txtCheckUpdateModal) txtCheckUpdateModal.textContent = currentDict.setting_check_updates_btn;
+    const btnOpenSettings = document.getElementById("btnOpenSettings");
+    if (btnOpenSettings) btnOpenSettings.title = currentDict.settings_btn_title;
+
     // Re-render result badge if currently visible
     if (state.lastResult) {
       renderResultBadges(state.lastResult);
@@ -383,8 +429,8 @@
     }
   }
 
-  // Load Initial Language (localStorage -> /api/settings -> default "en")
-  async function loadInitialLanguage() {
+  // Load Initial Settings & Language (localStorage -> /api/settings -> default "en")
+  async function loadInitialSettings() {
     let savedLang = null;
     try {
       savedLang = localStorage.getItem("cmd_language");
@@ -392,36 +438,237 @@
       savedLang = null;
     }
 
-    if (savedLang === "en" || savedLang === "id") {
-      setLanguage(savedLang, false);
-      return;
-    }
-
-    // Fallback: check server settings
     try {
       const res = await fetch("/api/settings");
       if (res.ok) {
         const data = await res.json();
-        if (data.language === "en" || data.language === "id") {
-          setLanguage(data.language, false);
-          return;
+        if (!savedLang && (data.language === "en" || data.language === "id")) {
+          savedLang = data.language;
+        }
+        if (data.auto_update !== undefined) {
+          const chk = document.getElementById("chkAutoUpdate");
+          if (chk) chk.checked = Boolean(data.auto_update);
         }
       }
     } catch (e) {
       // server offline or request failed
     }
 
-    // Default strictly to English
-    setLanguage("en", false);
+    setLanguage(savedLang || "en", false);
+  }
+
+  // ==============================================================================
+  // SETTINGS & AUTO-UPDATE ENGINE (ConvertMyDocuments)
+  // ==============================================================================
+  let currentUpdateData = null;
+  let updatePollTimer = null;
+
+  const btnOpenSettings = document.getElementById("btnOpenSettings");
+  const btnCloseSettings = document.getElementById("btnCloseSettings");
+  const settingsModal = document.getElementById("settingsModal");
+  const chkAutoUpdate = document.getElementById("chkAutoUpdate");
+  const btnCheckUpdateModal = document.getElementById("btnCheckUpdateModal");
+  const versionStatusText = document.getElementById("versionStatusText");
+  const settingsUpdateDot = document.getElementById("settingsUpdateDot");
+
+  const updateBanner = document.getElementById("updateBanner");
+  const updateBannerTitle = document.getElementById("updateBannerTitle");
+  const updateBannerVersion = document.getElementById("updateBannerVersion");
+  const updateBannerDesc = document.getElementById("updateBannerDesc");
+  const updateMiniProgress = document.getElementById("updateMiniProgress");
+  const updateMiniBar = document.getElementById("updateMiniBar");
+  const updateMiniPct = document.getElementById("updateMiniPct");
+  const btnUpdateAction = document.getElementById("btnUpdateAction");
+  const txtUpdateAction = document.getElementById("txtUpdateAction");
+  const btnDismissUpdate = document.getElementById("btnDismissUpdate");
+
+  function openSettingsModal() {
+    if (settingsModal) settingsModal.classList.remove("hidden");
+  }
+
+  function closeSettingsModal() {
+    if (settingsModal) settingsModal.classList.add("hidden");
+  }
+
+  function toggleAutoUpdate(enable) {
+    fetch("/api/settings", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ auto_update: enable }),
+    }).catch(() => {});
+  }
+
+  async function checkUpdates(manual = false) {
+    const currentDict = dict();
+    const txtModal = document.getElementById("txtCheckUpdateModal");
+    const checkIcon = btnCheckUpdateModal ? btnCheckUpdateModal.querySelector(".check-icon") : null;
+
+    if (checkIcon) checkIcon.classList.add("animate-spin");
+    if (txtModal && manual) txtModal.textContent = currentDict.setting_checking;
+
+    try {
+      const res = await fetch("/api/update/check", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ force: manual }),
+      });
+      const data = await res.json();
+
+      if (checkIcon) checkIcon.classList.remove("animate-spin");
+      if (txtModal) txtModal.textContent = currentDict.setting_check_updates_btn;
+
+      if (data.status === "available" || data.update_available) {
+        currentUpdateData = data;
+        renderUpdateNotification(data);
+        if (versionStatusText) {
+          versionStatusText.textContent = `${currentDict.update_banner_available} v${data.latest_version}`;
+          versionStatusText.style.color = "var(--emerald-400)";
+        }
+        if (settingsUpdateDot) settingsUpdateDot.classList.remove("hidden");
+      } else if (data.status === "ready_to_install") {
+        currentUpdateData = data;
+        renderUpdateNotification(data);
+        if (versionStatusText) {
+          versionStatusText.textContent = `${currentDict.update_banner_ready} v${data.latest_version}`;
+          versionStatusText.style.color = "var(--emerald-400)";
+        }
+      } else if (data.status === "up_to_date") {
+        if (settingsUpdateDot) settingsUpdateDot.classList.add("hidden");
+        if (versionStatusText) {
+          versionStatusText.textContent = currentDict.update_toast_up_to_date;
+          versionStatusText.style.color = "var(--text-muted)";
+        }
+        if (manual) {
+          showToast(currentDict.update_toast_up_to_date);
+        }
+      } else if (data.status === "error" && manual) {
+        showToast(data.error || "Failed to check updates.");
+      }
+    } catch (err) {
+      if (checkIcon) checkIcon.classList.remove("animate-spin");
+      if (txtModal) txtModal.textContent = currentDict.setting_check_updates_btn;
+      if (manual) showToast("Network error while checking updates.");
+    }
+  }
+
+  function renderUpdateNotification(data) {
+    if (!updateBanner) return;
+    const currentDict = dict();
+    const newVer = data.latest_version || "New";
+
+    if (updateBannerVersion) updateBannerVersion.textContent = `v${newVer}`;
+
+    if (data.status === "ready_to_install" || data.installer_ready) {
+      if (updateBannerTitle) updateBannerTitle.textContent = currentDict.update_banner_ready;
+      if (updateBannerDesc) updateBannerDesc.textContent = state.language === "en" ? "Installer downloaded. Restart to apply." : "Installer terunduh. Mulai ulang untuk memasang.";
+      if (txtUpdateAction) txtUpdateAction.textContent = currentDict.update_btn_restart;
+      if (updateMiniProgress) updateMiniProgress.classList.add("hidden");
+      if (btnUpdateAction) {
+        btnUpdateAction.classList.remove("hidden");
+        btnUpdateAction.disabled = false;
+      }
+    } else if (data.status === "downloading") {
+      if (updateBannerTitle) updateBannerTitle.textContent = currentDict.update_banner_downloading;
+      if (updateBannerDesc) updateBannerDesc.textContent = `${data.progress || 0}%`;
+      if (updateMiniProgress) updateMiniProgress.classList.remove("hidden");
+      if (updateMiniBar) updateMiniBar.style.setProperty("--progress", `${data.progress || 0}%`);
+      if (updateMiniPct) updateMiniPct.textContent = `${data.progress || 0}%`;
+      if (btnUpdateAction) btnUpdateAction.classList.add("hidden");
+    } else {
+      // available
+      if (updateBannerTitle) updateBannerTitle.textContent = currentDict.update_banner_available;
+      if (updateBannerDesc) updateBannerDesc.textContent = state.language === "en" ? "New release ready on GitHub." : "Rilis baru tersedia di GitHub.";
+      if (txtUpdateAction) txtUpdateAction.textContent = currentDict.update_btn_update;
+      if (updateMiniProgress) updateMiniProgress.classList.add("hidden");
+      if (btnUpdateAction) {
+        btnUpdateAction.classList.remove("hidden");
+        btnUpdateAction.disabled = false;
+      }
+    }
+
+    updateBanner.classList.remove("hidden");
+  }
+
+  async function handleUpdate() {
+    const currentDict = dict();
+    if (!currentUpdateData) return;
+
+    if (currentUpdateData.status === "ready_to_install" || currentUpdateData.installer_ready) {
+      if (btnUpdateAction) btnUpdateAction.disabled = true;
+      if (txtUpdateAction) txtUpdateAction.textContent = currentDict.update_toast_installing;
+      try {
+        await fetch("/api/update/apply", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ silent: false }),
+        });
+        showToast(currentDict.update_toast_installing);
+      } catch (e) {
+        showToast("Failed to apply update: " + e);
+      }
+      return;
+    }
+
+    // Trigger download
+    if (btnUpdateAction) btnUpdateAction.disabled = true;
+    if (txtUpdateAction) txtUpdateAction.textContent = currentDict.update_banner_downloading;
+    try {
+      const res = await fetch("/api/update/download", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({}),
+      });
+      const data = await res.json();
+      currentUpdateData = data;
+      renderUpdateNotification(data);
+      pollUpdateProgress();
+    } catch (e) {
+      showToast("Download failed: " + e);
+    }
+  }
+
+  function pollUpdateProgress() {
+    if (updatePollTimer) clearInterval(updatePollTimer);
+    updatePollTimer = setInterval(async () => {
+      try {
+        const res = await fetch("/api/update/status");
+        const data = await res.json();
+        currentUpdateData = data;
+        renderUpdateNotification(data);
+        if (data.status === "ready_to_install" || data.installer_ready || data.status === "error") {
+          clearInterval(updatePollTimer);
+          updatePollTimer = null;
+        }
+      } catch (e) {
+        clearInterval(updatePollTimer);
+        updatePollTimer = null;
+      }
+    }, 800);
   }
 
   // Initialize Application
   async function init() {
     setupEventListeners();
-    await loadInitialLanguage();
+    await loadInitialSettings();
     fetchSystemStatus();
     switchMode("pdf_to_word");
     startHeartbeat();
+
+    // Auto-update check status polling after 2.5 seconds
+    setTimeout(() => {
+      fetch("/api/update/status")
+        .then((r) => r.json())
+        .then((data) => {
+          if (data.update_available || data.status === "ready_to_install" || data.status === "downloading") {
+            currentUpdateData = data;
+            renderUpdateNotification(data);
+            if (data.status === "downloading") {
+              pollUpdateProgress();
+            }
+          }
+        })
+        .catch(() => {});
+    }, 2500);
   }
 
   // System Status
@@ -895,6 +1142,35 @@
       resetResultViews();
       updateConvertButtonState();
     });
+
+    // Settings & Updates Modal and Buttons
+    if (btnOpenSettings) {
+      btnOpenSettings.addEventListener("click", openSettingsModal);
+    }
+    if (btnCloseSettings) {
+      btnCloseSettings.addEventListener("click", closeSettingsModal);
+    }
+    if (settingsModal) {
+      settingsModal.addEventListener("click", (e) => {
+        if (e.target === settingsModal) closeSettingsModal();
+      });
+    }
+    if (chkAutoUpdate) {
+      chkAutoUpdate.addEventListener("change", (e) => {
+        toggleAutoUpdate(e.target.checked);
+      });
+    }
+    if (btnCheckUpdateModal) {
+      btnCheckUpdateModal.addEventListener("click", () => checkUpdates(true));
+    }
+    if (btnUpdateAction) {
+      btnUpdateAction.addEventListener("click", handleUpdate);
+    }
+    if (btnDismissUpdate) {
+      btnDismissUpdate.addEventListener("click", () => {
+        if (updateBanner) updateBanner.classList.add("hidden");
+      });
+    }
   }
 
   // Heartbeat loop (every 4 seconds) to keep server alive while window is open

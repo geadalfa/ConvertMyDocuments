@@ -20,7 +20,8 @@ hiddenimports = [
     'pikepdf',
     'cv2',
     'PIL',
-    'numpy'
+    'numpy',
+    'backend.updater'
 ]
 hiddenimports += collect_submodules('rapidocr_onnxruntime')
 hiddenimports += collect_submodules('pdf2docx')

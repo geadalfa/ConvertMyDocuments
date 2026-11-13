@@ -1,8 +1,8 @@
-; Inno Setup Script untuk ConvertMyDocuments v1.1.2
-; Menghasilkan installer mandiri profesional: ConvertMyDocuments_Setup_v1.1.2.exe
+; Inno Setup Script untuk ConvertMyDocuments v1.2.0
+; Menghasilkan installer mandiri profesional: ConvertMyDocuments_Setup_v1.2.0.exe
 
 #define MyAppName "ConvertMyDocuments"
-#define MyAppVersion "1.1.2"
+#define MyAppVersion "1.2.0"
 #define MyAppPublisher "geadalfa"
 #define MyAppURL "https://github.com/geadalfa/ConvertMyDocuments"
 #define MyAppExeName "ConvertMyDocuments.exe"
@@ -19,7 +19,7 @@ DefaultDirName={localappdata}\Programs\{#MyAppName}
 DefaultGroupName={#MyAppName}
 DisableProgramGroupPage=yes
 OutputDir=installer_output
-OutputBaseFilename=ConvertMyDocuments_Setup_v1.1.2
+OutputBaseFilename=ConvertMyDocuments_Setup_v1.2.0
 SetupIconFile=app_icon.ico
 Compression=lzma2/ultra64
 SolidCompression=yes

@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title id="pageTitle">ConvertMyDocuments v1.1.2 - Zero-Leakage Offline Document & OCR Suite</title>
+  <title id="pageTitle">ConvertMyDocuments v1.2.0 - Zero-Leakage Offline Document & OCR Suite</title>
   <link rel="icon" type="image/x-icon" href="favicon.ico">
   <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
   <link rel="manifest" href="manifest.json">
@@ -25,7 +25,7 @@
           </svg>
         </div>
         <div class="header-titles">
-          <h1 class="app-title">ConvertMyDocuments <span class="version-tag">v1.1.2</span></h1>
+          <h1 class="app-title">ConvertMyDocuments <span class="version-tag">v1.2.0</span></h1>
           <p class="app-subtitle" id="appSubtitle" data-i18n="app_subtitle">Zero-Leakage Local Document & OCR Suite</p>
         </div>
       </div>
@@ -49,8 +49,48 @@
           </svg>
           <span class="pill-text" id="privacyPillText" data-i18n="privacy_pill_text">100% Offline (Localhost)</span>
         </div>
+
+        <!-- Settings & Updates Button -->
+        <button type="button" class="settings-btn" id="btnOpenSettings" title="Settings & Updates" aria-label="Settings and Updates">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="3"/>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+          </svg>
+          <span class="settings-dot hidden" id="settingsUpdateDot"></span>
+        </button>
       </div>
     </header>
+
+    <!-- Update Notification Banner (Hidden by default, shown if update is available/ready) -->
+    <div class="update-banner hidden" id="updateBanner">
+      <div class="update-banner-content">
+        <div class="update-banner-left">
+          <svg class="update-banner-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 2v4m0 12v4M4.93 4.93l2.83 2.83m8.48 8.48 2.83 2.83M2 12h4m12 0h4M4.93 19.07l2.83-2.83m8.48-8.48 2.83-2.83"/>
+          </svg>
+          <div>
+            <span class="update-banner-title" id="updateBannerTitle">Update Available:</span>
+            <span class="update-tag" id="updateBannerVersion">v--</span>
+            <span class="update-banner-desc" id="updateBannerDesc">New release ready on GitHub.</span>
+          </div>
+        </div>
+        <div class="update-banner-right">
+          <div class="update-mini-progress hidden" id="updateMiniProgress">
+            <div class="update-mini-bar" id="updateMiniBar"></div>
+            <span class="update-mini-pct" id="updateMiniPct">0%</span>
+          </div>
+          <button type="button" class="btn-update-action" id="btnUpdateAction">
+            <span id="txtUpdateAction">Update Now</span>
+          </button>
+          <button type="button" class="btn-update-dismiss" id="btnDismissUpdate" title="Dismiss">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="18" y1="6" x2="6" y2="18"/>
+              <line x1="6" y1="6" x2="18" y2="18"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
 
     <!-- Main Navigation Tabs (The 4 Core Menus) -->
     <nav class="nav-tabs" id="navTabs">
@@ -343,6 +383,59 @@
     <!-- Toast Notification -->
     <div class="toast-notification hidden" id="toast">
       <span id="toastMsg">Text copied to clipboard!</span>
+    </div>
+
+    <!-- Settings & Updates Modal -->
+    <div class="modal-backdrop hidden" id="settingsModal">
+      <div class="modal-card">
+        <div class="modal-header">
+          <div class="modal-title-group">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="3"/>
+              <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+            </svg>
+            <h3 id="settingsModalTitle">Settings & Updates</h3>
+          </div>
+          <button type="button" class="modal-close-btn" id="btnCloseSettings">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="18" y1="6" x2="6" y2="18"/>
+              <line x1="6" y1="6" x2="18" y2="18"/>
+            </svg>
+          </button>
+        </div>
+        <div class="modal-body">
+          <!-- Toggle Auto Updates (Default ON) -->
+          <div class="settings-row">
+            <div class="settings-info">
+              <div class="settings-label" id="lblAutoUpdateSetting">Automatic Updates from GitHub</div>
+              <div class="settings-hint" id="hintAutoUpdateSetting">Automatically check and download the latest release in the background (Default ON).</div>
+            </div>
+            <label class="toggle-switch">
+              <input type="checkbox" id="chkAutoUpdate" checked>
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+
+          <!-- Version and Status -->
+          <div class="settings-version-card">
+            <div class="version-meta">
+              <span class="version-label" id="lblInstalledVersion">Installed Version:</span>
+              <span class="version-val">v1.2.0</span>
+            </div>
+            <div class="version-status" id="versionStatusText">Status: Up to date</div>
+          </div>
+
+          <!-- Check Now Button -->
+          <div class="settings-actions">
+            <button type="button" class="btn-check-modal" id="btnCheckUpdateModal">
+              <svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/>
+              </svg>
+              <span id="txtCheckUpdateModal">Check for Updates Now</span>
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 

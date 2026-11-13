@@ -1,6 +1,6 @@
 """
 server.py
-ConvertMyDocuments v1.1.2 - High Performance Standalone Windows Desktop Server.
+ConvertMyDocuments v1.2.0 - High Performance Standalone Windows Desktop Server.
 Runs 100% offline on localhost (127.0.0.1) with zero external network connectivity.
 Launches native Windows Edge App Mode with automatic lifecycle watchdog.
 """
@@ -49,6 +49,14 @@ from converter import (
 
 PORT = 5570
 STATIC_DIR = os.path.join(BASE_DIR, "static")
+APP_VERSION = "1.2.0"
+
+try:
+    from backend import updater
+except ImportError:
+    import updater
+
+updater_instance = updater.UpdateManager(app_name="ConvertMyDocuments", current_version=APP_VERSION)
 
 # Job status tracking for live progress bar
 jobs_lock = threading.Lock()
@@ -132,9 +140,9 @@ def get_settings_file_path() -> str:
 
 
 def load_settings() -> Dict[str, Any]:
-    """Loads user settings from persistent JSON file. Defaults to English ('en')."""
+    """Loads user settings from persistent JSON file. Defaults to English ('en') & auto_update=True."""
     path = get_settings_file_path()
-    default_settings = {"language": "en"}
+    default_settings = {"language": "en", "auto_update": True}
     if os.path.exists(path):
         try:
             with open(path, "r", encoding="utf-8") as f:
@@ -143,7 +151,10 @@ def load_settings() -> Dict[str, Any]:
                     lang = data.get("language", "en")
                     if lang not in ["en", "id"]:
                         lang = "en"
-                    return {"language": lang}
+                    default_settings["language"] = lang
+                    if "auto_update" in data:
+                        default_settings["auto_update"] = bool(data["auto_update"])
+                    return default_settings
         except Exception:
             pass
     return default_settings
@@ -203,7 +214,7 @@ class DocShieldHandler(SimpleHTTPRequestHandler):
             self.end_headers()
             status_data = {
                 "name": "ConvertMyDocuments",
-                "version": "1.1.2",
+                "version": "1.2.0",
                 "status": "online",
                 "mode": "100% Offline (Localhost)",
                 "language": load_settings().get("language", "en"),
@@ -219,6 +230,23 @@ class DocShieldHandler(SimpleHTTPRequestHandler):
             self.send_header("Content-Type", "application/json")
             self.end_headers()
             self.wfile.write(json.dumps(load_settings()).encode("utf-8"))
+            return
+
+        # Update Status API (GET)
+        if path == "/api/update/status":
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json")
+            self.end_headers()
+            self.wfile.write(json.dumps(updater_instance.get_status()).encode("utf-8"))
+            return
+
+        # Update Check API (GET)
+        if path == "/api/update/check":
+            force = query.get("force", ["0"])[0] in ("1", "true", "True")
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json")
+            self.end_headers()
+            self.wfile.write(json.dumps(updater_instance.check_for_updates(force=force)).encode("utf-8"))
             return
 
         # Job Progress Polling API
@@ -276,9 +304,14 @@ class DocShieldHandler(SimpleHTTPRequestHandler):
             body = self.rfile.read(content_len).decode("utf-8")
             try:
                 data = json.loads(body)
+                to_save = {}
                 lang = data.get("language")
                 if lang in ["en", "id"]:
-                    save_settings({"language": lang})
+                    to_save["language"] = lang
+                if "auto_update" in data:
+                    to_save["auto_update"] = bool(data["auto_update"])
+                if to_save:
+                    save_settings(to_save)
                 updated = load_settings()
                 self.send_response(200)
                 self.send_header("Content-Type", "application/json")
@@ -289,6 +322,57 @@ class DocShieldHandler(SimpleHTTPRequestHandler):
                 self.send_header("Content-Type", "application/json")
                 self.end_headers()
                 self.wfile.write(json.dumps({"success": False, "error": str(e)}).encode("utf-8"))
+            return
+
+        # Update Check API (POST)
+        if path == "/api/update/check":
+            content_len = int(self.headers.get("Content-Length", 0))
+            force = True
+            if content_len > 0:
+                try:
+                    b = json.loads(self.rfile.read(content_len).decode("utf-8"))
+                    force = b.get("force", True)
+                except Exception:
+                    pass
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json")
+            self.end_headers()
+            self.wfile.write(json.dumps(updater_instance.check_for_updates(force=force)).encode("utf-8"))
+            return
+
+        # Update Download API (POST)
+        if path == "/api/update/download":
+            content_len = int(self.headers.get("Content-Length", 0))
+            url = None
+            if content_len > 0:
+                try:
+                    b = json.loads(self.rfile.read(content_len).decode("utf-8"))
+                    url = b.get("download_url")
+                except Exception:
+                    pass
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json")
+            self.end_headers()
+            self.wfile.write(json.dumps(updater_instance.start_download(url)).encode("utf-8"))
+            return
+
+        # Update Apply API (POST)
+        if path == "/api/update/apply":
+            content_len = int(self.headers.get("Content-Length", 0))
+            silent = False
+            if content_len > 0:
+                try:
+                    b = json.loads(self.rfile.read(content_len).decode("utf-8"))
+                    silent = bool(b.get("silent", False))
+                except Exception:
+                    pass
+            def _shutdown():
+                time.sleep(0.5)
+                os._exit(0)
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json")
+            self.end_headers()
+            self.wfile.write(json.dumps(updater_instance.apply_update(silent=silent, on_shutdown=_shutdown)).encode("utf-8"))
             return
 
         # Open File in Default Windows App API
@@ -561,6 +645,9 @@ def run_server(open_browser: bool = True):
 
     if open_browser:
         threading.Timer(0.4, launch_app_window, args=[url]).start()
+
+    # Automatic background update check (default ON in settings)
+    updater_instance.start_background_auto_update(load_settings, delay=3.5, on_shutdown=lambda: os._exit(0))
 
     # Watchdog thread: cleanly terminate server when window is closed
     def watchdog_loop():
