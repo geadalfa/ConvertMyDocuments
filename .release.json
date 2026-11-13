@@ -1,0 +1,4 @@
+{
+  "app": "ConvertMyDocuments",
+  "setup_glob": "ConvertMyDocuments*Setup*.exe"
+}

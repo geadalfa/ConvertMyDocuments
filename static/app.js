@@ -1,6 +1,6 @@
 /**
  * app.js
- * Frontend controller for ConvertMyDocuments v1.1.1.
+ * Frontend controller for ConvertMyDocuments v1.1.2.
  * Zero-Leakage Offline Document & OCR Desktop Suite for Windows.
  * Supports Bilingual UI (English & Indonesian) with persistent session preferences.
  */
@@ -11,7 +11,7 @@
   // Bilingual Dictionary (English Default & Indonesian)
   const I18N = {
     en: {
-      page_title: "ConvertMyDocuments v1.1.1 - Zero-Leakage Offline Document & OCR Suite",
+      page_title: "ConvertMyDocuments v1.1.2 - Zero-Leakage Offline Document & OCR Suite",
       app_subtitle: "Zero-Leakage Local Document & OCR Suite",
       privacy_pill_tooltip: "All files processed 100% locally in your PC memory without internet.",
       privacy_pill_text: "100% Offline (Localhost)",
@@ -119,7 +119,7 @@
     },
 
     id: {
-      page_title: "ConvertMyDocuments v1.1.1 - Suite Dokumen & OCR Offline Tanpa Bocor Data",
+      page_title: "ConvertMyDocuments v1.1.2 - Suite Dokumen & OCR Offline Tanpa Bocor Data",
       app_subtitle: "Suite Dokumen & OCR Lokal Tanpa Bocor Data",
       privacy_pill_tooltip: "Semua berkas diproses 100% lokal di memori PC tanpa internet.",
       privacy_pill_text: "100% Offline (Localhost)",

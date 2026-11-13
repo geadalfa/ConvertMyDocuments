@@ -75,7 +75,7 @@ class TestDocShieldAPI(unittest.TestCase):
         """QA Gate: Verify local-only offline status and system parameters."""
         data = self._get_json("/api/status")
         self.assertEqual(data.get("name"), "ConvertMyDocuments")
-        self.assertEqual(data.get("version"), "1.1.1")
+        self.assertRegex(data.get("version"), r"^\d+\.\d+\.\d+$")
         self.assertIn("100% Offline", data.get("mode"))
         self.assertIn(data.get("language"), ["en", "id"])
         self.assertTrue(os.path.exists(data.get("default_output_dir")))

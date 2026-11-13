@@ -7,7 +7,7 @@
 [![Compliance: UU PDP No. 27/2022](https://img.shields.io/badge/Compliance-Indonesia%20UU%20PDP%20No.%2027%2F2022-brightgreen.svg)](#regulatory-compliance-indonesia-uu-pdp)
 [![Language: Bilingual](https://img.shields.io/badge/UI-English%20%7C%20Bahasa%20Indonesia-blueviolet.svg)](#bilingual-interface-and-session-persistence)
 [![Platform: Windows 10/11](https://img.shields.io/badge/Platform-Windows%2010%20%7C%2011%20(64--bit)-lightgrey.svg)](#installation-and-download)
-[![Release: v1.1.1](https://img.shields.io/badge/Release-v1.1.1-blue.svg)](https://github.com/geadalfa/ConvertMyDocuments/releases/tag/v1.1.1)
+[![Release: v1.1.2](https://img.shields.io/badge/Release-v1.1.2-blue.svg)](https://github.com/geadalfa/ConvertMyDocuments/releases/tag/v1.1.2)
 
 ConvertMyDocuments is a standalone, offline Windows desktop application that converts PDF documents, scans, and images into editable Microsoft Word (`.docx`), plain text (`.txt`), and PDF (`.pdf`) formats with zero network data transmission.
 
@@ -67,12 +67,12 @@ ConvertMyDocuments provides a native bilingual interface supporting **English** 
 
 ## Installation and Download
 
-Pre-compiled standalone binaries for 64-bit Windows are distributed through [GitHub Releases](https://github.com/geadalfa/ConvertMyDocuments/releases/tag/v1.1.1):
+Pre-compiled standalone binaries for 64-bit Windows are distributed through [GitHub Releases](https://github.com/geadalfa/ConvertMyDocuments/releases/tag/v1.1.2):
 
 | Package | Type | Description |
 | :--- | :--- | :--- |
-| **[`ConvertMyDocuments_Setup_v1.1.1.exe`](https://github.com/geadalfa/ConvertMyDocuments/releases/download/v1.1.1/ConvertMyDocuments_Setup_v1.1.1.exe)** | Official Installer (Recommended) | Standard Inno Setup installer. Installs per-user without requiring administrative (UAC) elevation. Creates Desktop and Start Menu shortcuts. |
-| **[`ConvertMyDocuments-v1.1.1-portable.zip`](https://github.com/geadalfa/ConvertMyDocuments/releases/download/v1.1.1/ConvertMyDocuments-v1.1.1-portable.zip)** | Standalone Portable Archive | Extract to any folder and execute `ConvertMyDocuments.exe` directly without installation. |
+| **[`ConvertMyDocuments_Setup_v1.1.2.exe`](https://github.com/geadalfa/ConvertMyDocuments/releases/download/v1.1.2/ConvertMyDocuments_Setup_v1.1.2.exe)** | Official Installer (Recommended) | Standard Inno Setup installer. Installs per-user without requiring administrative (UAC) elevation. Creates Desktop and Start Menu shortcuts. |
+| **[`ConvertMyDocuments-v1.1.2-portable.zip`](https://github.com/geadalfa/ConvertMyDocuments/releases/download/v1.1.2/ConvertMyDocuments-v1.1.2-portable.zip)** | Standalone Portable Archive | Extract to any folder and execute `ConvertMyDocuments.exe` directly without installation. |
 
 ### System Requirements
 - **Operating System:** Windows 10 (64-bit) or Windows 11 (64-bit).
@@ -161,7 +161,7 @@ Ensure Inno Setup 6 is installed, then run:
 ```powershell
 & "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" installer.iss
 ```
-The compiled installer will be saved to `installer_output\ConvertMyDocuments_Setup_v1.1.1.exe`.
+The compiled installer will be saved to `installer_output\ConvertMyDocuments_Setup_v1.1.2.exe`.
 
 ---
 
@@ -184,7 +184,7 @@ ConvertMyDocuments is released under the **[PolyForm Noncommercial License 1.0.0
 [![Kepatuhan: UU PDP No. 27/2022](https://img.shields.io/badge/Kepatuhan-UU%20PDP%20No.%2027%2F2022-brightgreen.svg)](#kepatuhan-regulasi-uu-pdp-indonesia)
 [![Bahasa: Dwibahasa](https://img.shields.io/badge/UI-English%20%7C%20Bahasa%20Indonesia-blueviolet.svg)](#antarmuka-dwibahasa-dan-penyimpanan-sesi-1)
 [![Platform: Windows 10/11](https://img.shields.io/badge/Platform-Windows%2010%20%7C%2011%20(64--bit)-lightgrey.svg)](#unduh-dan-instalasi-1)
-[![Rilis: v1.1.1](https://img.shields.io/badge/Rilis-v1.1.1-blue.svg)](https://github.com/geadalfa/ConvertMyDocuments/releases/tag/v1.1.1)
+[![Rilis: v1.1.2](https://img.shields.io/badge/Rilis-v1.1.2-blue.svg)](https://github.com/geadalfa/ConvertMyDocuments/releases/tag/v1.1.2)
 
 ConvertMyDocuments adalah aplikasi desktop Windows mandiri untuk mengonversi berkas PDF, pindaian, dan gambar menjadi dokumen Microsoft Word (`.docx`), teks polos (`.txt`), serta PDF (`.pdf`) tanpa mengirimkan data ke jaringan luar.
 
@@ -244,12 +244,12 @@ ConvertMyDocuments mendukung antarmuka dalam **Bahasa Inggris** dan **Bahasa Ind
 
 ## Unduh dan Instalasi
 
-Berkas biner mandiri untuk Windows 64-bit tersedia di [Halaman GitHub Releases](https://github.com/geadalfa/ConvertMyDocuments/releases/tag/v1.1.1):
+Berkas biner mandiri untuk Windows 64-bit tersedia di [Halaman GitHub Releases](https://github.com/geadalfa/ConvertMyDocuments/releases/tag/v1.1.2):
 
 | Berkas | Tipe | Keterangan |
 | :--- | :--- | :--- |
-| **[`ConvertMyDocuments_Setup_v1.1.1.exe`](https://github.com/geadalfa/ConvertMyDocuments/releases/download/v1.1.1/ConvertMyDocuments_Setup_v1.1.1.exe)** | Installer Resmi (Direkomendasikan) | Installer Inno Setup standar. Berjalan pada izin pengguna tanpa memerlukan elevasi Administrator (UAC). Otomatis membuat pintasan Desktop dan Start Menu. |
-| **[`ConvertMyDocuments-v1.1.1-portable.zip`](https://github.com/geadalfa/ConvertMyDocuments/releases/download/v1.1.1/ConvertMyDocuments-v1.1.1-portable.zip)** | Berkas Portabel | Cukup ekstrak ke folder mana saja dan jalankan `ConvertMyDocuments.exe` langsung tanpa instalasi. |
+| **[`ConvertMyDocuments_Setup_v1.1.2.exe`](https://github.com/geadalfa/ConvertMyDocuments/releases/download/v1.1.2/ConvertMyDocuments_Setup_v1.1.2.exe)** | Installer Resmi (Direkomendasikan) | Installer Inno Setup standar. Berjalan pada izin pengguna tanpa memerlukan elevasi Administrator (UAC). Otomatis membuat pintasan Desktop dan Start Menu. |
+| **[`ConvertMyDocuments-v1.1.2-portable.zip`](https://github.com/geadalfa/ConvertMyDocuments/releases/download/v1.1.2/ConvertMyDocuments-v1.1.2-portable.zip)** | Berkas Portabel | Cukup ekstrak ke folder mana saja dan jalankan `ConvertMyDocuments.exe` langsung tanpa instalasi. |
 
 ### Kebutuhan Sistem
 - **Sistem Operasi:** Windows 10 (64-bit) atau Windows 11 (64-bit).

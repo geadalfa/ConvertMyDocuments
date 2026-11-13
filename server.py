@@ -1,6 +1,6 @@
 """
 server.py
-ConvertMyDocuments v1.1.1 - High Performance Standalone Windows Desktop Server.
+ConvertMyDocuments v1.1.2 - High Performance Standalone Windows Desktop Server.
 Runs 100% offline on localhost (127.0.0.1) with zero external network connectivity.
 Launches native Windows Edge App Mode with automatic lifecycle watchdog.
 """
@@ -56,6 +56,71 @@ active_jobs: Dict[str, Dict[str, Any]] = {}
 
 last_heartbeat = time.time()
 has_received_heartbeat = False
+
+INSTANCE_MUTEX_NAME = "Local\\ConvertMyDocuments_SingleInstance"
+_instance_mutex_handle = None
+
+
+def acquire_single_instance() -> bool:
+    """Hold a Windows named mutex so only one server process can run."""
+    global _instance_mutex_handle
+    if os.name != "nt":
+        return True
+    try:
+        import ctypes
+
+        kernel32 = ctypes.windll.kernel32
+        kernel32.CreateMutexW.restype = ctypes.c_void_p
+        kernel32.CreateMutexW.argtypes = [ctypes.c_void_p, ctypes.c_bool, ctypes.c_wchar_p]
+        kernel32.CloseHandle.argtypes = [ctypes.c_void_p]
+        handle = kernel32.CreateMutexW(None, False, INSTANCE_MUTEX_NAME)
+        if not handle:
+            return True
+        ERROR_ALREADY_EXISTS = 183
+        if kernel32.GetLastError() == ERROR_ALREADY_EXISTS:
+            kernel32.CloseHandle(handle)
+            return False
+        _instance_mutex_handle = handle
+        return True
+    except Exception:
+        # Fail open: a missing mutex must never block the app from starting.
+        return True
+
+
+def focus_existing_window() -> bool:
+    """Bring the existing ConvertMyDocuments window to the foreground."""
+    if os.name != "nt":
+        return False
+    try:
+        import ctypes
+        from ctypes import wintypes
+
+        user32 = ctypes.windll.user32
+        matches = []
+        enum_proc = ctypes.WINFUNCTYPE(wintypes.BOOL, wintypes.HWND, wintypes.LPARAM)
+
+        def callback(hwnd, _lparam):
+            if not user32.IsWindowVisible(hwnd):
+                return True
+            length = user32.GetWindowTextLengthW(hwnd)
+            if length <= 0:
+                return True
+            buffer = ctypes.create_unicode_buffer(length + 1)
+            user32.GetWindowTextW(hwnd, buffer, length + 1)
+            if "convertmydocuments" in buffer.value.lower():
+                matches.append(hwnd)
+                return False
+            return True
+
+        user32.EnumWindows(enum_proc(callback), 0)
+        if not matches:
+            return False
+        hwnd = matches[0]
+        user32.ShowWindow(hwnd, 9)  # SW_RESTORE
+        user32.SetForegroundWindow(hwnd)
+        return True
+    except Exception:
+        return False
 
 
 def get_settings_file_path() -> str:
@@ -138,7 +203,7 @@ class DocShieldHandler(SimpleHTTPRequestHandler):
             self.end_headers()
             status_data = {
                 "name": "ConvertMyDocuments",
-                "version": "1.1.1",
+                "version": "1.1.2",
                 "status": "online",
                 "mode": "100% Offline (Localhost)",
                 "language": load_settings().get("language", "en"),
@@ -471,9 +536,16 @@ def is_server_already_running(port: int) -> bool:
 
 def run_server(open_browser: bool = True):
     global PORT
-    if is_server_already_running(PORT):
+    if not acquire_single_instance():
+        print("[*] ConvertMyDocuments is already running; focusing the existing window.")
         if open_browser:
-            launch_app_window(f"http://127.0.0.1:{PORT}")
+            focus_existing_window()
+        return
+
+    if is_server_already_running(PORT):
+        print("[*] ConvertMyDocuments server is already running; focusing the existing window.")
+        if open_browser:
+            focus_existing_window()
         return
 
     server_address = ("127.0.0.1", PORT)
