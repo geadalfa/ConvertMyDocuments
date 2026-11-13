@@ -8,6 +8,7 @@ datas = [
     ('app_icon.ico', '.')
 ]
 datas += collect_data_files('rapidocr_onnxruntime')
+datas += collect_data_files('pymupdf')
 datas += collect_data_files('pdf2docx')
 
 hiddenimports = [

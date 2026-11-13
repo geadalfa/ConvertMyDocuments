@@ -18,9 +18,9 @@ AppUpdatesURL={#MyAppURL}
 DefaultDirName={localappdata}\Programs\{#MyAppName}
 DefaultGroupName={#MyAppName}
 DisableProgramGroupPage=yes
-OutputDir=C:\Users\Alfa\.gemini\antigravity\scratch\docshield-converter\installer_output
+OutputDir=installer_output
 OutputBaseFilename=ConvertMyDocuments_Setup_v1.1.1
-SetupIconFile=C:\Users\Alfa\.gemini\antigravity\scratch\docshield-converter\app_icon.ico
+SetupIconFile=app_icon.ico
 Compression=lzma2/ultra64
 SolidCompression=yes
 WizardStyle=modern
@@ -35,7 +35,7 @@ Name: "english"; MessagesFile: "compiler:Default.isl"
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
 
 [Files]
-Source: "C:\Users\Alfa\.gemini\antigravity\scratch\docshield-converter\dist\ConvertMyDocuments\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "dist\ConvertMyDocuments\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
 
 [Icons]
 Name: "{group}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; IconFilename: "{app}\{#MyAppExeName}"

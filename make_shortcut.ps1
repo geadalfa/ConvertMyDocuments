@@ -1,17 +1,19 @@
 $WshShell = New-Object -ComObject WScript.Shell
+$ProjectDir = Split-Path -Parent $MyInvocation.MyCommand.Path
+$DesktopDir = [Environment]::GetFolderPath("Desktop")
 
 # Remove old shortcut if present
-$oldLnk = "C:\Users\Alfa\Desktop\DocShield Converter.lnk"
+$oldLnk = Join-Path $DesktopDir "DocShield Converter.lnk"
 if (Test-Path $oldLnk) {
     Remove-Item -Path $oldLnk -Force
 }
 
 # Create ConvertMyDocuments shortcut
-$Shortcut = $WshShell.CreateShortcut("C:\Users\Alfa\Desktop\ConvertMyDocuments.lnk")
+$Shortcut = $WshShell.CreateShortcut((Join-Path $DesktopDir "ConvertMyDocuments.lnk"))
 $Shortcut.TargetPath = "wscript.exe"
-$Shortcut.Arguments = "`"C:\Users\Alfa\.gemini\antigravity\scratch\docshield-converter\launch_convertmydocuments.vbs`""
-$Shortcut.WorkingDirectory = "C:\Users\Alfa\.gemini\antigravity\scratch\docshield-converter"
+$Shortcut.Arguments = "`"$(Join-Path $ProjectDir 'launch_convertmydocuments.vbs')`""
+$Shortcut.WorkingDirectory = $ProjectDir
 $Shortcut.Description = "ConvertMyDocuments v1.1.0 - Zero-Leakage Offline Document and OCR Suite"
-$Shortcut.IconLocation = "C:\Users\Alfa\.gemini\antigravity\scratch\docshield-converter\app_icon.ico,0"
+$Shortcut.IconLocation = "$(Join-Path $ProjectDir 'app_icon.ico'),0"
 $Shortcut.Save()
 Write-Host "ConvertMyDocuments shortcut created successfully on Desktop!"
